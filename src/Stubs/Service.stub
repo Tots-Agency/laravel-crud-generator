@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Services;
+
+class {{entity}}Service
+{
+    // TO DO
+
+    public function create(array $data)
+    {
+        // TO DO
+    }
+
+    public function read($id)
+    {
+        // TO DO
+    }
+
+    public function update($id, array $data)
+    {
+        // TO DO
+    }
+
+    public function delete($id)
+    {
+        // TO DO
+    }
+}
