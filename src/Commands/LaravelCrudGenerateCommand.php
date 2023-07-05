@@ -7,18 +7,17 @@ use TOTS\LaravelCrudGenerator\LaravelCrudGenerator;
 
 class LaravelCrudGenerateCommand extends Command
 {
-    protected $signature = 'crud:generate {entity} {--options= : The options for CRUD generation}';
+    protected $signature = 'crud:generate {--path= : The path for CRUD generation file}';
 
-    protected $description = 'Generate CRUD files for a given entity';
+    protected $description = 'Generate CRUD files';
 
     public function handle()
     {
-        $entityName = $this->argument( 'entity' );
-        $crudOptions = explode( ',', $this->option( 'options' ) );
+        $crudGeneratorFilePath = $this->argument( 'path' );
 
-        $crudGenerator = new LaravelCrudGenerator( $entityName, $crudOptions );
+        $crudGenerator = new LaravelCrudGenerator( $crudGeneratorFilePath );
         $crudGenerator->generateFiles();
 
-        $this->info( 'CRUD for ' . $entityName . ' successfully generated.' );
+        // $this->info( 'CRUD for ' . $entityName . ' successfully generated.' );
     }
 }

@@ -1,0 +1,84 @@
+{
+    "entities": {
+        "user": {
+            "nameSingular": "user",
+            "namePlural": "user",
+            "rewrite": false,
+            "files": [ "routes", "model", "controller", "migration", "factory", "service", "tests" ],
+            "attributes": {
+                "user": {
+                    "type": "string",
+                    "nullable": false,
+                    "unique": true,
+                    "default": "admin"
+                }
+            },
+            "relations": {
+                "belongsTo": {
+                    "models": [ "role", "permission" ],
+                    "role": {
+                        "model": "App\\Models\\Role",
+                        "foreingKey": "role_id",
+                        "localKey": "id",
+                        "relation": "role_user"
+                    }
+                },
+                "belongsToMany": {
+
+                },
+                "hasMany": {
+
+                },
+                "hasOne": {
+
+                },
+                "hasManyThrough": {
+
+                },
+                "belongsToManyThrough": {
+
+                },
+                "manyToMany": {
+
+                },
+                "manyToManyThrough": {
+
+                },
+                "morphMany": {
+
+                },
+                "morphOne": {
+
+                }
+            },
+            "model": {
+                "table": "users",
+                "tablePrimaryKey": "id",
+                "filePath": "app/Models",
+                "traits": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
+                "interfaces": [ "Illuminate\\Contracts\\Auth\\MustVerifyEmail" ],
+                "inheritance": "Illuminate\\Foundation\\Auth\\User as Authenticatable",
+                "rewrite": true
+            },
+            "controller": {
+                "filePath": "app/Http/Controllers",
+                "methods": [ "list", "store", "update", "delete" ]
+            },
+            "service": {
+                "filePath": "app/Services"
+            },
+            "migration": {
+                "table": "users",
+                "filePath": "database/migrations"
+            },
+            "factory": {
+                "filePath": "database/migrations"
+
+            },
+            "tests": {
+
+            }
+        },
+        "role": true
+    }
+}
