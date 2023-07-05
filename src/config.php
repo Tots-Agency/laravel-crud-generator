@@ -9,8 +9,9 @@ return [
         "traits" => [],
         "interfaces" => [],
         "inheritance" => "Illuminate\\Database\\Eloquent\\Model",
-        "file-path" => "app/Models",
-        "table-primary-key" => "id",
+        "file_path" => "app/Models",
+        "namespace" => "App\\Models",
+        "table_primary_key" => "id",
         "rewrite" => false
     ],
     "controller" => [

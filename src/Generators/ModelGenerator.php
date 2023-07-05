@@ -3,26 +3,31 @@
 namespace TOTS\LaravelCrudGenerator\Generators;
 
 use TOTS\LaravelCrudGenerator\FileGenerator;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Str;
 
 class ModelGenerator extends FileGenerator
 {
-    protected string $entityName;
-    protected array $entityData;
-    protected array $configurationOptions;
-    protected string $filePath;
-
-    public function __construct( string $entityName, array $options, string $filePath = null )
+    public function setGeneratorType() : void
     {
-        parent::__construct( $entityName, $options, $filePath );
-        if( !$this->filePath ) $this->filePath = $this->configurationOptions['model'][ 'file-path' ];
+        $this->generatorType = 'model';
     }
 
-    public function generateFiles()
+    public function setClassname()
     {
-        foreach( $this->options as $file )
-        {
-            $method = 'create' . ucfirst( $file );
-            $this->$method();
-        }
+        $classname = $this->generatorData && $this->generatorData->classname? $this->generatorData->classname : $this->entitySingularName;
+        $this->classname = Str::camel( $classname );
     }
+
+    public function initFileContentFromStub() : void
+    {
+        $this->fileContent = File::get( __DIR__ . '/Stubs/Model.stub' );
+    }
+
+    public function generateFileContent() : void
+    {
+        $this->fileContent = str_replace( '{{entity}}', $this->entityName, $this->fileContent );
+    }
+
+
 }

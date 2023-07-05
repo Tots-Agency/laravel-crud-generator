@@ -2,7 +2,7 @@
     "entities": {
         "user": {
             "nameSingular": "user",
-            "namePlural": "user",
+            "namePlural": "users",
             "rewrite": false,
             "files": [ "routes", "model", "controller", "migration", "factory", "service", "tests" ],
             "attributes": {
@@ -52,9 +52,11 @@
                 }
             },
             "model": {
+                "namespace": "App\\Models",
+                "filePath": "app/Models",
+                "classname": "User",
                 "table": "users",
                 "tablePrimaryKey": "id",
-                "filePath": "app/Models",
                 "traits": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
                 "interfaces": [ "Illuminate\\Contracts\\Auth\\MustVerifyEmail" ],
                 "inheritance": "Illuminate\\Foundation\\Auth\\User as Authenticatable",

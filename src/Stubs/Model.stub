@@ -1,13 +1,16 @@
 <?php
 
-namespace App\Models;
+namespace {{ namespace }};
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Model;
+{{ use_url }}
 
-class {{entity}} extends Model
+class {{ classname }} {{ extends }} {{ implements }}
 {
-    use HasFactory;
+    {{ use_traits }}
 
-    // TO DO
+    {{ table }}
+
+    {{ attributes }}
+
+    {{ relations }}
 }
