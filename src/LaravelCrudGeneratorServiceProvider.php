@@ -15,6 +15,7 @@ class LaravelCrudGeneratorServiceProvider extends ServiceProvider
 
         $this->commands( [
             Commands\LaravelCrudGenerateCommand::class,
+            Commands\LaravelCrudInstallCommand::class,
         ] );
     }
 }

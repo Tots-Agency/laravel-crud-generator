@@ -9,6 +9,8 @@ use Illuminate\Support\Str;
 abstract class FileGenerator implements FileGeneratorInterface
 {
     protected string $entityName;
+    protected string $entitySingularName;
+    protected string $entityPluralName;
     protected object $entityData;
     protected string $filePath;
     protected string $fileName;
@@ -18,38 +20,57 @@ abstract class FileGenerator implements FileGeneratorInterface
     protected string $generatorType;
     protected object $generatorData;
     protected string $classname;
-    protected string $entitySingularName;
-    protected string $entityPluralName;
+    protected string $classNamespace;
+
+    protected array $stubKeys = [ 'namespace', 'use', 'classname', 'extends', 'traits', 'implements' ];
 
 
-    public function __construct( string $entityName, array $entityData, string $filePath = null )
+    /**
+     * Class constructor.
+     *
+     * @param string $entityName   The name of the entity.
+     * @param object  $entityData   The data of the entity.
+     * @param string $filePath     The file path (optional).
+     */
+    public function __construct( string $entityName, object $entityData )
     {
         $this->entityName = $entityName;
         $this->entityData = $entityData;
-        $this->filePath = $filePath;
         $this->configurationOptions = require config_path( 'laravelCrudGenerator.php' );
+        $this->setGeneratorType();
+        $this->setGeneratorData();
         $this->setEntitySingularName();
         $this->setEntityPluralName();
-        $this->setGeneratorType();
         $this->setFilePath();
         $this->makePathDirectory();
+        $this->setClassname();
         $this->setFileName();
         $this->setFileUrl();
         $this->setClassNamespace();
         $this->initFileContentFromStub();
     }
 
+    /**
+     * Set the value of the entity's singular name.
+     *
+     * @return void
+     */
     public function setEntitySingularName() : void
     {
-        if( $this->entityData && $this->entityData->nameSingular ) $this->classname = ucfirst( $this->entityData->nameSingular );
+        $this->entitySingularName = strtolower( $this->entityData && $this->entityData->nameSingular? $this->entityData->nameSingular : $this->entityName );
     }
 
+    /**
+     * Set the value of the entity's plural name.
+     *
+     * @return void
+     */
     public function setEntityPluralName() : void
     {
-
+        $this->entityPluralName = strtolower( $this->entityData && $this->entityData->namePlural? $this->entityData->namePlural : Str::plural( $this->entitySingularName ) );
     }
 
-    public function setGeneratorData()
+    public function setGeneratorData() : void
     {
         $generatorType = $this->generatorType;
         $this->generatorData = $this->entityData->$generatorType;
@@ -57,9 +78,7 @@ abstract class FileGenerator implements FileGeneratorInterface
 
     public function setFilePath() : void
     {
-
-        if( $this->generatorData && $this->generatorData->filePath ) $this->filePath = $this->generatorData->filePath;
-        if( !$this->filePath ) $this->filePath = $this->configurationOptions[ $this->generatorType ][ 'file_path' ];
+        $this->filePath = $this->generatorData && $this->generatorData->filePath? $this->generatorData->filePath : $this->configurationOptions[ $this->generatorType ][ 'file_path' ];
     }
 
     protected function makePathDirectory() : void
@@ -67,20 +86,19 @@ abstract class FileGenerator implements FileGeneratorInterface
         if( !File::exists( $this->filePath ) ) File::makeDirectory( $this->filePath );
     }
 
-    public function setFileName()
+    public function setFileName() : void
     {
-        if( !$this->fileName ) $this->fileName = $this->classname . '.php';
+        $this->fileName = $this->classname . '.php';
     }
 
-    public function setFileUrl()
+    public function setFileUrl() : void
     {
         $this->fileUrl = $this->filePath . '/' . $this->fileName;
     }
 
-    public function setClassname()
+    public function setClassname() : void
     {
-        $classname = $this->generatorData && $this->generatorData->classname? $this->generatorData->classname : $this->entitySingularName;
-        $this->classname = Str::camel( $classname );
+        $this->classname = $this->generatorData && $this->generatorData->classname? $this->generatorData->classname : $this->entityName . ucfirst( $this->generatorType );
     }
 
     public function generateFile() : void
@@ -89,17 +107,14 @@ abstract class FileGenerator implements FileGeneratorInterface
         $this->createFile();
     }
 
-
     public function createFile() : void
     {
         File::put( $this->fileUrl, $this->fileContent );
     }
 
-
-
-    public function setClassNamespace()
+    public function setClassNamespace() : void
     {
-
+        $this->classNamespace = $this->generatorData && $this->generatorData->namespace? $this->generatorData->namespace : $this->configurationOptions[ $this->generatorType ][ 'namespace' ];
     }
 
 }

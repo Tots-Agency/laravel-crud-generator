@@ -1,10 +1,10 @@
 {
     "entities": {
-        "user": {
+        "User": {
             "nameSingular": "user",
             "namePlural": "users",
             "rewrite": false,
-            "files": [ "routes", "model", "controller", "migration", "factory", "service", "tests" ],
+            "files": [ "routes", "model", "controller", "migration", "factory", "service", "test" ],
             "attributes": {
                 "user": {
                     "type": "string",
@@ -81,6 +81,6 @@
 
             }
         },
-        "role": true
+        "Role": true
     }
 }

@@ -19,8 +19,9 @@ class LaravelCrudGenerator
 
     public function generateFiles()
     {
-        foreach( $this->crudData->entities as $entityName => $entityData )
+        foreach( get_object_vars( $this->crudData->entities ) as $entityName => $entityData )
         {
+            // dd( $entityName, '-----------------------------------', $entityData );
             $this->generateModel( $entityName, $entityData );
         }
     }
