@@ -15,12 +15,12 @@ class ModelGenerator extends FileGenerator
 
     public function setGeneratorType() : void
     {
-        $this->generatorType = 'model';
+        $this->fileType = 'model';
     }
 
     public function setClassname() : void
     {
-        $this->classname = $this->generatorData && $this->generatorData->classname? $this->generatorData->classname : $this->entityName;
+        $this->classname = $this->fileData && $this->fileData->classname? $this->fileData->classname : $this->entityName;
     }
 
     public function initFileContentFromStub() : void

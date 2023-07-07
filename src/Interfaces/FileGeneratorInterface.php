@@ -9,5 +9,5 @@ interface FileGeneratorInterface
     public function initFileContentFromStub() : void;
     public function generateFile() : void;
     public function generateFileContent() : void;
-    public function createFile() : void;
+    public function createFile() : bool;
 }

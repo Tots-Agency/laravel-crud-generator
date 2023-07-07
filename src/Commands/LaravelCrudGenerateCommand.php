@@ -16,7 +16,7 @@ class LaravelCrudGenerateCommand extends Command
         // $crudGeneratorFilePath = $this->argument( 'path' );
         $crudGeneratorFilePath = $this->option( 'path' );
 
-        $crudGenerator = new LaravelCrudGenerator( $crudGeneratorFilePath );
+        $crudGenerator = new LaravelCrudGenerator( $this, $crudGeneratorFilePath );
         $crudGenerator->generateFiles();
 
         // $this->info( 'CRUD for ' . $entityName . ' successfully generated.' );

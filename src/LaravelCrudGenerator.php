@@ -4,15 +4,18 @@ namespace TOTS\LaravelCrudGenerator;
 
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Console\Command;
 use TOTS\LaravelCrudGenerator\Generators\ModelGenerator;
 
 class LaravelCrudGenerator
 {
-    private $crudData;
-    private $configurationOptions;
+    private object $crudData;
+    private array $configurationOptions;
+    private Command $command;
 
-    public function __construct( $filePath = null )
+    public function __construct( $command, $filePath = null )
     {
+        $this->command = $command;
         $this->configurationOptions = require config_path( 'laravelCrudGenerator.php' );
         $this->crudData = json_decode( file_get_contents( $filePath?  $filePath : $this->configurationOptions[ 'default_file_path' ] ) );
     }
@@ -21,15 +24,18 @@ class LaravelCrudGenerator
     {
         foreach( get_object_vars( $this->crudData->entities ) as $entityName => $entityData )
         {
-            // dd( $entityName, '-----------------------------------', $entityData );
+            $entityData = !empty( (array) $entityData )? $entityData : null;
             $this->generateModel( $entityName, $entityData );
         }
     }
 
-    public function generateModel( $entityName, $entityData )
+    public function generateModel( string $entityName, object $entityData = null )
     {
         $modelGenerator = new ModelGenerator( $entityName, $entityData );
-        $modelGenerator->createFile();
+        $modelGenerator->createFile()?
+            $this->command->info( "✔ Model {$entityName} has been created successfully." ):
+            $this->command->warn( "❌ Model {$entityName} hasn't been created since already exist." );
+
     }
 
     // private function createModel()

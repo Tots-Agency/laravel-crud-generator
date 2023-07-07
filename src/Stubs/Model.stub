@@ -10,6 +10,8 @@ class {{ classname }} {{ extends }} {{ implements }}
 
     {{ table }}
 
+    {{ primary_key }}
+
     {{ attributes }}
 
     {{ relations }}

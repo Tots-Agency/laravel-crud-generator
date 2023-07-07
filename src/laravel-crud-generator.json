@@ -1,26 +1,26 @@
 {
     "entities": {
-        "User": {
-            "nameSingular": "user",
-            "namePlural": "users",
-            "rewrite": false,
+        "Product": {
+            "nameSingular": "product",
+            "namePlural": "products",
+            "rewrite": true,
             "files": [ "routes", "model", "controller", "migration", "factory", "service", "test" ],
             "attributes": {
-                "user": {
+                "name": {
                     "type": "string",
                     "nullable": false,
                     "unique": true,
-                    "default": "admin"
+                    "default": "Default Test Product"
                 }
             },
             "relations": {
                 "belongsTo": {
-                    "models": [ "role", "permission" ],
-                    "role": {
-                        "model": "App\\Models\\Role",
-                        "foreingKey": "role_id",
+                    "models": [ "ProductCategory", "Brand" ],
+                    "ProductCategory": {
+                        "model": "App\\Models\\ProductCategory",
+                        "foreingKey": "category_id",
                         "localKey": "id",
-                        "relation": "role_user"
+                        "relation": "product_category"
                     }
                 },
                 "belongsToMany": {
@@ -54,8 +54,8 @@
             "model": {
                 "namespace": "App\\Models",
                 "filePath": "app/Models",
-                "classname": "User",
-                "table": "users",
+                "classname": "Product",
+                "table": "products",
                 "tablePrimaryKey": "id",
                 "traits": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
                 "interfaces": [ "Illuminate\\Contracts\\Auth\\MustVerifyEmail" ],
@@ -70,7 +70,7 @@
                 "filePath": "app/Services"
             },
             "migration": {
-                "table": "users",
+                "table": "products",
                 "filePath": "database/migrations"
             },
             "factory": {
@@ -81,6 +81,6 @@
 
             }
         },
-        "Role": true
+        "Test": {}
     }
 }

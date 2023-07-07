@@ -9,7 +9,6 @@ use TOTS\LaravelCrudGenerator\LaravelCrudGenerator;
 class LaravelCrudInstallCommand extends Command
 {
     protected $signature = 'crud:install';
-
     protected $description = 'Install Laravel CRUD generator';
 
     public function handle()
