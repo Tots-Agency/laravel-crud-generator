@@ -4,9 +4,9 @@ namespace {{ namespace }};
 
 {{ use }}
 
-class {{ classname }} {{ extends }} {{ implements }}
+class {{ classname }} {{ extends }} {{ interfaces }}
 {
-    {{ use_traits }}
+    {{ traits }}
 
     {{ table }}
 

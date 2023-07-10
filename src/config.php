@@ -8,7 +8,7 @@ return [
     "model" => [
         "traits" => [],
         "interfaces" => [],
-        "inheritance" => "Illuminate\\Database\\Eloquent\\Model",
+        "extends" => "Illuminate\\Database\\Eloquent\\Model",
         "file_path" => "app/Models",
         "namespace" => "App\\Models",
         "table_primary_key" => "id",
@@ -17,7 +17,7 @@ return [
     "controller" => [
         "traits" => [],
         "interfaces" => [],
-        "inheritance" => "Illuminate\\Routing\\Controller as BaseController",
+        "extends" => "Illuminate\\Routing\\Controller as BaseController",
         "methods" => [ "list", "store", "update", "delete" ]
     ],
 ];

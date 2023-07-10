@@ -30,12 +30,7 @@ class ModelGenerator extends FileGenerator
 
     public function generateFileContent() : void
     {
-        $this->fileContent = str_replace( '{{ namespace }}', $this->classNamespace, $this->fileContent );
-        $this->fileContent = str_replace( '{{ use }}', '{{ use }}', $this->fileContent );
-        $this->fileContent = str_replace( '{{ classname }}', $this->classname, $this->fileContent );
-        $this->fileContent = str_replace( '{{ extends }}', '{{ extends }}', $this->fileContent );
-        $this->fileContent = str_replace( '{{ implements }}', '{{ implements }}', $this->fileContent );
-        $this->fileContent = str_replace( '{{ use_traits }}', '{{ use_traits }}', $this->fileContent );
+        parent::generateFileContent();
     }
 
 

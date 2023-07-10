@@ -59,7 +59,7 @@
                 "tablePrimaryKey": "id",
                 "traits": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
                 "interfaces": [ "Illuminate\\Contracts\\Auth\\MustVerifyEmail" ],
-                "inheritance": "Illuminate\\Foundation\\Auth\\User as Authenticatable",
+                "extends": "Illuminate\\Foundation\\Auth\\User as Authenticatable",
                 "rewrite": true
             },
             "controller": {
