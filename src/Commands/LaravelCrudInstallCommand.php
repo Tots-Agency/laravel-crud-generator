@@ -4,7 +4,6 @@ namespace TOTS\LaravelCrudGenerator\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
-use TOTS\LaravelCrudGenerator\LaravelCrudGenerator;
 
 class LaravelCrudInstallCommand extends Command
 {
@@ -21,6 +20,6 @@ class LaravelCrudInstallCommand extends Command
         $laravelPath = base_path( 'laravel-crud-generator.json' );
         File::copy( $jsonFilePath, $laravelPath );
 
-        $this->info( 'Laravel CRUD generator installation has been completed successfully.' );
+        $this->info( '✨Laravel CRUD generator installation has been completed successfully.' );
     }
 }
