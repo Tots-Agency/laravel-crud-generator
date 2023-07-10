@@ -53,7 +53,7 @@ abstract class FileGenerator implements FileGeneratorInterface
         $this->setFileInterfaces();
         $this->setFileTraits();
         $this->setClassNamespace();
-        $this->initFileContentFromStub();
+        $this->initFileContent();
     }
 
     /**
@@ -105,10 +105,11 @@ abstract class FileGenerator implements FileGeneratorInterface
     public function setFileUseUrls() : void
     {
         $useUrls = [];
-        $useUrls[] = $this->fileData && property_exists( $this->fileData, 'extends' )? $this->fileData->extends : $this->configurationOptions[ $this->fileType ][ 'extends' ];
-        $useUrls = $this->fileData && property_exists( $this->fileData, 'interfaces' )? array_merge( $useUrls, $this->fileData->interfaces ) : $this->configurationOptions[ $this->fileType ][ 'interfaces' ];
-        $useUrls = $this->fileData && property_exists( $this->fileData, 'traits' )? array_merge( $useUrls, $this->fileData->traits ) : $this->configurationOptions[ $this->fileType ][ 'traits' ];
-        $this->fileUseUrls = empty( $useUrls )? '' : 'use ' . implode( ";\nuse ", $useUrls ) . ';';
+        if( ( $this->fileData && property_exists( $this->fileData, 'extends' ) ) || isset( $this->configurationOptions[ $this->fileType ][ 'extends' ] ) && $this->configurationOptions[ $this->fileType ][ 'extends' ] )
+            $useUrls[] = $this->fileData && property_exists( $this->fileData, 'extends' )? $this->fileData->extends : $this->configurationOptions[ $this->fileType ][ 'extends' ];
+        $useUrls = array_merge( $useUrls, $this->fileData && property_exists( $this->fileData, 'interfaces' )? $this->fileData->interfaces : $this->configurationOptions[ $this->fileType ][ 'interfaces' ] );
+        $useUrls = array_merge( $useUrls, $this->fileData && property_exists( $this->fileData, 'traits' )? $this->fileData->traits : $this->configurationOptions[ $this->fileType ][ 'traits' ] );
+        $this->fileUseUrls = empty( $useUrls )? '' : 'use ' . implode( ";\nuse ", $useUrls ) . ";\n\n";
     }
 
     public function setFileExtends() : void
@@ -145,7 +146,7 @@ abstract class FileGenerator implements FileGeneratorInterface
             {
                 $traits[ $key ] = self::getClassNameFromUrl( $traitsUrl );
             }
-            $this->fileTraits = 'use ' . implode( ', ', $traits ) . ';';
+            $this->fileTraits = 'use ' . implode( ', ', $traits ) . ";\n\n\t";
         }
     }
 

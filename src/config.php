@@ -8,16 +8,16 @@ return [
     "model" => [
         "traits" => [],
         "interfaces" => [],
-        "extends" => "Illuminate\\Database\\Eloquent\\Model",
+        "extends" => null,
         "file_path" => "app/Models",
         "namespace" => "App\\Models",
-        "table_primary_key" => "id",
-        "rewrite" => false
+        "rewrite" => true
     ],
     "controller" => [
         "traits" => [],
         "interfaces" => [],
         "extends" => "Illuminate\\Routing\\Controller as BaseController",
-        "methods" => [ "list", "store", "update", "delete" ]
+        "methods" => [ "list", "store", "update", "delete" ],
+        "rewrite" => false
     ],
 ];

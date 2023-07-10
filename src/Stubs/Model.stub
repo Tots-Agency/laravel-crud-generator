@@ -2,17 +2,7 @@
 
 namespace {{ namespace }};
 
-{{ use }}
-
-class {{ classname }} {{ extends }} {{ interfaces }}
+{{ use }}class {{ classname }} {{ extends }} {{ interfaces }}
 {
-    {{ traits }}
-
-    {{ table }}
-
-    {{ primary_key }}
-
-    {{ attributes }}
-
-    {{ relations }}
+    {{ traits }}{{ table }}{{ primary_key }}{{ mutators }}{{ accessors }}{{ relations }}
 }
