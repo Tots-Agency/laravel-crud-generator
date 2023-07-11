@@ -6,6 +6,7 @@ return [
     "files" => [ "routes", "model", "controller", "migration", "factory", "service", "test" ],
     "relations" => [],
     "model" => [
+        "use" => [],
         "traits" => [],
         "interfaces" => [],
         "extends" => null,
@@ -14,10 +15,22 @@ return [
         "rewrite" => true
     ],
     "controller" => [
+        "use" => [ 'Illuminate\Http\Request' ],
         "traits" => [],
         "interfaces" => [],
-        "extends" => "Illuminate\\Routing\\Controller as BaseController",
+        "extends" => "Controller",
+        "file_path" => "app/Http/Controllers",
+        "namespace" => "App\\Http\\Controllers",
         "methods" => [ "list", "store", "update", "delete" ],
-        "rewrite" => false
+        "rewrite" => true
+    ],
+    "service" => [
+        "use" => [],
+        "traits" => [],
+        "interfaces" => [],
+        "extends" => null,
+        "file_path" => "app/Services",
+        "namespace" => "App\\Services",
+        "rewrite" => true
     ],
 ];

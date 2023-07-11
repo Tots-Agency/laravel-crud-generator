@@ -1,10 +1,1 @@
-<?php
-
-namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-
-class {{entity}}Controller extends Controller
-{
-    // TO DO
-}
+{{ create }}{{ read }}{{ update }}{{ delete }}{{ search }}

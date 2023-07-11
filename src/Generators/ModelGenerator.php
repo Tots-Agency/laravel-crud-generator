@@ -3,25 +3,18 @@
 namespace TOTS\LaravelCrudGenerator\Generators;
 
 use TOTS\LaravelCrudGenerator\FileGenerator;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Str;
 
 class ModelGenerator extends FileGenerator
 {
     protected string $table = '';
     protected string $primaryKey = '';
+    protected string $attributes = '';
     protected string $accessors = '';
     protected string $mutators = '';
     protected string $relations = '';
 
-    public function setGeneratorType() : void
+    public function setFileContent() : void
     {
-        $this->fileType = 'model';
-    }
-
-    public function initFileContent() : void
-    {
-        $this->fileContent = File::get( __DIR__ . '/../Stubs/Model.stub' );
         $this->setTable();
         $this->setPrimaryKey();
     }
@@ -52,6 +45,4 @@ class ModelGenerator extends FileGenerator
         $this->fileContent = str_replace( '{{ mutators }}', $this->mutators, $this->fileContent );
         $this->fileContent = str_replace( '{{ relations }}', $this->relations, $this->fileContent );
     }
-
-
 }

@@ -53,7 +53,12 @@ abstract class FileGenerator implements FileGeneratorInterface
         $this->setFileInterfaces();
         $this->setFileTraits();
         $this->setClassNamespace();
-        $this->initFileContent();
+        $this->setFileContent();
+    }
+
+    public function setGeneratorType() : void
+    {
+        $this->fileType = strtolower( str_replace( [ 'TOTS\\LaravelCrudGenerator\\Generators\\', 'Generator' ], '', get_class( $this ) ) );
     }
 
     /**
@@ -105,10 +110,11 @@ abstract class FileGenerator implements FileGeneratorInterface
     public function setFileUseUrls() : void
     {
         $useUrls = [];
-        if( ( $this->fileData && property_exists( $this->fileData, 'extends' ) ) || isset( $this->configurationOptions[ $this->fileType ][ 'extends' ] ) && $this->configurationOptions[ $this->fileType ][ 'extends' ] )
+        if( ( $this->fileData && property_exists( $this->fileData, 'extends' ) && strpos( $this->fileData->extends, '\\') > -1 ) || ( isset( $this->configurationOptions[ $this->fileType ][ 'extends' ] ) && $this->configurationOptions[ $this->fileType ][ 'extends' ] && strpos( $this->configurationOptions[ $this->fileType ][ 'extends' ], '\\') > -1 ) )
             $useUrls[] = $this->fileData && property_exists( $this->fileData, 'extends' )? $this->fileData->extends : $this->configurationOptions[ $this->fileType ][ 'extends' ];
         $useUrls = array_merge( $useUrls, $this->fileData && property_exists( $this->fileData, 'interfaces' )? $this->fileData->interfaces : $this->configurationOptions[ $this->fileType ][ 'interfaces' ] );
         $useUrls = array_merge( $useUrls, $this->fileData && property_exists( $this->fileData, 'traits' )? $this->fileData->traits : $this->configurationOptions[ $this->fileType ][ 'traits' ] );
+        $useUrls = array_merge( $useUrls, $this->fileData && property_exists( $this->fileData, 'use' )? $this->fileData->use : $this->configurationOptions[ $this->fileType ][ 'use' ] );
         $this->fileUseUrls = empty( $useUrls )? '' : 'use ' . implode( ";\nuse ", $useUrls ) . ";\n\n";
     }
 
@@ -195,6 +201,8 @@ abstract class FileGenerator implements FileGeneratorInterface
 
     public function generateFileContent() : void
     {
+        $template = File::get( __DIR__ . '/Stubs/template.stub' );
+        $this->fileContent = str_replace( '{{ file_stub }}', File::get( __DIR__ . "/Stubs/{$this->fileType}.stub" ), $template );
         $this->fileContent = str_replace( '{{ namespace }}', $this->classNamespace, $this->fileContent );
         $this->fileContent = str_replace( '{{ use }}', $this->fileUseUrls, $this->fileContent );
         $this->fileContent = str_replace( '{{ classname }}', $this->classname, $this->fileContent );

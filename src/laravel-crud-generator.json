@@ -63,11 +63,13 @@
                 "rewrite": true
             },
             "controller": {
-                "filePath": "app/Http/Controllers",
+                "filePath": "app/Http/Controllers/Test",
                 "methods": [ "list", "store", "update", "delete" ]
             },
             "service": {
-                "filePath": "app/Services"
+                "use": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
+                "extends": "MainService",
+                "filePath": "app/Services/Test"
             },
             "migration": {
                 "table": "products",

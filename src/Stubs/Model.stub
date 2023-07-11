@@ -1,8 +1,1 @@
-<?php
-
-namespace {{ namespace }};
-
-{{ use }}class {{ classname }} {{ extends }} {{ interfaces }}
-{
-    {{ traits }}{{ table }}{{ primary_key }}{{ mutators }}{{ accessors }}{{ relations }}
-}
+{{ table }}{{ primary_key }}{{ attributes }}{{ mutators }}{{ accessors }}{{ relations }}
