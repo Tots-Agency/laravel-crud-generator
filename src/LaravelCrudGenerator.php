@@ -23,6 +23,7 @@ class LaravelCrudGenerator
         {
             $entityData = !empty( (array) $entityData )? $entityData : null;
             $files = $entityData && $entityData->files? $entityData->files : $this->configurationOptions[ 'files' ];
+            $this->command->line( "➡ CRUD generation for {$entityName}:" );
             foreach( $files as $file )
             {
                 if( in_array( $file, [ 'model', 'controller', 'service' ] ) )
