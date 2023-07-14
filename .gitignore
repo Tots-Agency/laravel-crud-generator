@@ -1,7 +1,6 @@
 /node_modules
-/public/hot
-/public/storage
-/storage/*.key
+/public
+/storage
 /vendor
 .env
 .env.backup
@@ -13,3 +12,10 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
+/app
+/config
+/routes
+/resources
+/database
+/test
+laravel-crud-generator.json
