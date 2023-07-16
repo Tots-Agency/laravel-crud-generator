@@ -19,16 +19,19 @@ class LaravelCrudGenerator
 
     public function generateFiles()
     {
+        $this->command->newLine();
         foreach( get_object_vars( $this->crudData->entities ) as $entityName => $entityData )
         {
             $entityData = !empty( (array) $entityData )? $entityData : null;
             $files = $entityData && $entityData->files? $entityData->files : $this->configurationOptions[ 'files' ];
-            $this->command->line( "➡ CRUD generation for {$entityName}:" );
+            $this->command->line( "<options=bold;fg=bright-yellow;>⚡</><options=bold;fg=bright-magenta;> CRUD generation for {$entityName}</>" );
             foreach( $files as $file )
             {
                 if( in_array( $file, [ 'model', 'controller', 'service' ] ) )
                 $this->generateFile( $file, $entityName, $entityData );
             }
+            $this->command->line( "<options=bold;fg=bright-white;>└─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=bright-cyan;>{$entityName} has been generated successfully</>" );
+            $this->command->newLine();
         }
     }
 
@@ -38,7 +41,7 @@ class LaravelCrudGenerator
         $class = 'TOTS\\LaravelCrudGenerator\\Generators\\' . $fileType . 'Generator';
         $generator = new $class( $entityName, $entityData );
         $generator->createFile()?
-            $this->command->info( "✔ {$fileType} {$entityName} has been created successfully." ):
-            $this->command->warn( "❌ {$fileType} {$entityName} hasn't been created since already exist." );
+            $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=white;>{$fileType}</>" ):
+            $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-red;>❌</><options=bold;fg=red;>{$fileType}</>" );
     }
 }

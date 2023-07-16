@@ -22,7 +22,7 @@ return [
         "file_path" => "app/Http/Controllers",
         "namespace" => "App\\Http\\Controllers",
         "methods" => [ "list", "store", "update", "delete" ],
-        "rewrite" => true
+        "rewrite" => false
     ],
     "service" => [
         "use" => [],
