@@ -30,7 +30,7 @@ class LaravelCrudGenerator
                 if( in_array( $file, [ 'model', 'controller', 'service' ] ) )
                 $this->generateFile( $file, $entityName, $entityData );
             }
-            $this->command->line( "<options=bold;fg=bright-white;>└─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=bright-cyan;>{$entityName} has been generated successfully</>" );
+            $this->command->line( "<options=bold;fg=bright-white;>└─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=bright-cyan;> {$entityName} has been generated successfully</>" );
             $this->command->newLine();
         }
     }
@@ -41,7 +41,7 @@ class LaravelCrudGenerator
         $class = 'TOTS\\LaravelCrudGenerator\\Generators\\' . $fileType . 'Generator';
         $generator = new $class( $entityName, $entityData );
         $generator->createFile()?
-            $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=white;>{$fileType}</>" ):
-            $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-red;>❌</><options=bold;fg=red;>{$fileType}</>" );
+            $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=white;> {$fileType}</>" ):
+            $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-red;>❌</><options=bold;fg=red;> {$fileType}</>" );
     }
 }

@@ -18,12 +18,12 @@ class LaravelCrudInstallCommand extends Command
         $configFilePath = __DIR__ . '/../config.php';
         $laravelConfigPath = base_path( 'config/laravelCrudGenerator.php' );
         File::copy( $configFilePath, $laravelConfigPath );
-        $this->line( '<options=bold;fg=white;> ║</><options=bold;fg=blue;>                  📃</><options=bold;fg=white;>Config file created                    </><options=bold;fg=white;>║</>' );
+        $this->line( '<options=bold;fg=white;> ║</><options=bold;fg=blue;>                  📃</><options=bold;fg=white;> Config file created                   </><options=bold;fg=white;>║</>' );
 
         $jsonFilePath = __DIR__ . '/../laravel-crud-generator.json';
         $laravelPath = base_path( 'laravel-crud-generator.json' );
         File::copy( $jsonFilePath, $laravelPath );
-        $this->line( '<options=bold;fg=white;> ║</><options=bold;fg=blue;>                  📃</><options=bold;fg=white;>Json file created                      </><options=bold;fg=white;>║</>' );
+        $this->line( '<options=bold;fg=white;> ║</><options=bold;fg=blue;>                  📃</><options=bold;fg=white;> Json file created                     </><options=bold;fg=white;>║</>' );
         $this->boxLine( 'Laravel CRUD generator has been installed successfully' );
         $this->newLine();
     }
