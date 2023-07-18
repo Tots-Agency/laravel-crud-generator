@@ -15,7 +15,7 @@ abstract class FileGenerator implements FileGeneratorInterface
     protected string $filePath;
     protected string $fileName;
     protected string $fileUrl;
-    protected string $fileUseUrls;
+    protected array $fileUseUrls;
     protected string $fileExtends;
     protected string $fileInterfaces;
     protected string $fileTraits;
@@ -109,13 +109,12 @@ abstract class FileGenerator implements FileGeneratorInterface
 
     public function setFileUseUrls() : void
     {
-        $useUrls = [];
+        $this->fileUseUrls = [];
         if( ( $this->fileData && property_exists( $this->fileData, 'extends' ) && strpos( $this->fileData->extends, '\\') > -1 ) || ( isset( $this->configurationOptions[ $this->fileType ][ 'extends' ] ) && $this->configurationOptions[ $this->fileType ][ 'extends' ] && strpos( $this->configurationOptions[ $this->fileType ][ 'extends' ], '\\') > -1 ) )
-            $useUrls[] = $this->fileData && property_exists( $this->fileData, 'extends' )? $this->fileData->extends : $this->configurationOptions[ $this->fileType ][ 'extends' ];
-        $useUrls = array_merge( $useUrls, $this->fileData && property_exists( $this->fileData, 'interfaces' )? $this->fileData->interfaces : $this->configurationOptions[ $this->fileType ][ 'interfaces' ] );
-        $useUrls = array_merge( $useUrls, $this->fileData && property_exists( $this->fileData, 'traits' )? $this->fileData->traits : $this->configurationOptions[ $this->fileType ][ 'traits' ] );
-        $useUrls = array_merge( $useUrls, $this->fileData && property_exists( $this->fileData, 'use' )? $this->fileData->use : $this->configurationOptions[ $this->fileType ][ 'use' ] );
-        $this->fileUseUrls = empty( $useUrls )? '' : 'use ' . implode( ";\nuse ", $useUrls ) . ";\n\n";
+            $this->fileUseUrls[] = $this->fileData && property_exists( $this->fileData, 'extends' )? $this->fileData->extends : $this->configurationOptions[ $this->fileType ][ 'extends' ];
+        $this->fileUseUrls = array_merge( $this->fileUseUrls, $this->fileData && property_exists( $this->fileData, 'interfaces' )? $this->fileData->interfaces : $this->configurationOptions[ $this->fileType ][ 'interfaces' ] );
+        $this->fileUseUrls = array_merge( $this->fileUseUrls, $this->fileData && property_exists( $this->fileData, 'traits' )? $this->fileData->traits : $this->configurationOptions[ $this->fileType ][ 'traits' ] );
+        $this->fileUseUrls = array_merge( $this->fileUseUrls, $this->fileData && property_exists( $this->fileData, 'use' )? $this->fileData->use : $this->configurationOptions[ $this->fileType ][ 'use' ] );
     }
 
     public function setFileExtends() : void
@@ -152,7 +151,7 @@ abstract class FileGenerator implements FileGeneratorInterface
             {
                 $traits[ $key ] = self::getClassNameFromUrl( $traitsUrl );
             }
-            $this->fileTraits = 'use ' . implode( ', ', $traits ) . ";\n\n\t";
+            $this->fileTraits = "\tuse " . implode( ', ', $traits ) . ";\n\n\t";
         }
     }
 
@@ -199,16 +198,33 @@ abstract class FileGenerator implements FileGeneratorInterface
         return isset( $className[ 1 ] )? $className[ 1 ] : $className[ 0 ];
     }
 
+    public static function isCannonicalMethod( string $method ) : bool
+    {
+        $methodToGenerateContent = 'generate' . $method . 'MethodContent';
+        return method_exists( get_called_class(), $methodToGenerateContent );
+    }
+
     public function generateFileContent() : void
     {
         $template = File::get( __DIR__ . '/Stubs/template.stub' );
         $this->fileContent = str_replace( '{{ file_stub }}', File::get( __DIR__ . "/Stubs/{$this->fileType}.stub" ), $template );
         $this->fileContent = str_replace( '{{ namespace }}', $this->classNamespace, $this->fileContent );
-        $this->fileContent = str_replace( '{{ use }}', $this->fileUseUrls, $this->fileContent );
+        $this->fileContent = str_replace( '{{ use }}', empty( $this->fileUseUrls )? '' : 'use ' . implode( ";\nuse ", $this->fileUseUrls ) . ";\n\n", $this->fileContent );
         $this->fileContent = str_replace( '{{ classname }}', $this->classname, $this->fileContent );
         $this->fileContent = str_replace( '{{ extends }}', $this->fileExtends, $this->fileContent );
         $this->fileContent = str_replace( '{{ interfaces }}', $this->fileInterfaces, $this->fileContent );
         $this->fileContent = str_replace( '{{ traits }}', $this->fileTraits, $this->fileContent );
+    }
+
+    public static function generateMethodTemplate( $methodName, $methodArguments = '', $methodReturnType = 'void', $methodScope = 'public' ) : string
+    {
+        $methodTemplate = File::get( __DIR__ . '/Stubs/method.stub' );
+        $methodTemplate = str_replace( '{{ method_name }}', $methodName, $methodTemplate );
+        $methodTemplate = str_replace( '{{ method_arguments }}', $methodArguments, $methodTemplate );
+        $methodTemplate = str_replace( '{{ method_return_type }}', $methodReturnType, $methodTemplate );
+        $methodTemplate = str_replace( '{{ method_scope }}', $methodScope, $methodTemplate );
+        $methodTemplate = str_replace( '\\t', "\t", $methodTemplate );
+        return $methodTemplate;
     }
 
 }

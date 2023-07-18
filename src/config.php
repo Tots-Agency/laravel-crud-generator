@@ -3,7 +3,7 @@
 return [
     "default_file_path" => env( "LARAVEL_CRUD_GENERATOR_FILE_PATH" ) ?? 'laravel-crud-generator.json',
     "rewrite" => env( "LARAVEL_CRUD_GENERATOR_RERWRITE" ) ?? true,
-    "files" => [ "routes", "model", "controller", "migration", "factory", "service", "test" ],
+    "files" => [ "routes", "model", "controller", "migration", "factory", "repository", "test" ],
     "relations" => [],
     "model" => [
         "use" => [],
@@ -15,22 +15,24 @@ return [
         "rewrite" => true
     ],
     "controller" => [
-        "use" => [ 'Illuminate\Http\Request' ],
+        "use" => [ 'App\\Http\\Controllers\\Controller' ],
         "traits" => [],
         "interfaces" => [],
         "extends" => "Controller",
         "file_path" => "app/Http/Controllers",
         "namespace" => "App\\Http\\Controllers",
-        "methods" => [ "list", "store", "update", "delete" ],
-        "rewrite" => false
+        "methods" => [ "list", "fetch", "store", "update", "delete" ],
+        "response" => "\\Illuminate\\Http\\JsonResponse",
+        "rewrite" => true
     ],
-    "service" => [
+    "repository" => [
         "use" => [],
         "traits" => [],
         "interfaces" => [],
         "extends" => null,
-        "file_path" => "app/Services",
-        "namespace" => "App\\Services",
+        "file_path" => "app/Repositories",
+        "namespace" => "App\\Repositories",
+        "methods" => [ "list", "fetch", "store", "update", "delete" ],
         "rewrite" => true
     ],
 ];

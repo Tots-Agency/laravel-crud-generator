@@ -1,1 +1,1 @@
-{{ create }}{{ read }}{{ update }}{{ delete }}{{ search }}
+{{ methods }}

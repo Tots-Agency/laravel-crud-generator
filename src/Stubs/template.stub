@@ -4,5 +4,4 @@ namespace {{ namespace }};
 
 {{ use }}class {{ classname }} {{ extends }} {{ interfaces }}
 {
-    {{ traits }}{{ file_stub }}
-}
+{{ traits }}{{ file_stub }}}
