@@ -9,7 +9,7 @@ return [
         "use" => [],
         "traits" => [],
         "interfaces" => [],
-        "extends" => null,
+        "extends" => 'Illuminate\Database\Eloquent\Model',
         "file_path" => "app/Models",
         "namespace" => "App\\Models",
         "rewrite" => true

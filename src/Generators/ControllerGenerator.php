@@ -97,7 +97,7 @@ class ControllerGenerator extends FileGenerator
 
     public function generateStoreMethodContent() : string
     {
-        return "{$this->entityVar} = {$this->entityRepository}::create( \$request->validated() );
+        return "{$this->entityVar} = {$this->entityRepository}::store( \$request->validated() );
         return response()->json( [
             'data' => {$this->entityResource}::make( {$this->entityVar} ),
         ], 201 );";
@@ -122,7 +122,7 @@ class ControllerGenerator extends FileGenerator
     {
         $requestFile = $this->getMethodRequestFile( 'update' );
         $this->addRequestFileToUseUrls( $requestFile );
-        return $requestFile . " \$request, {$this->entityVar}Id";
+        return $requestFile . " \$request, int {$this->entityVar}Id";
     }
 
     public function generateDeleteMethodContent() : string
@@ -141,12 +141,12 @@ class ControllerGenerator extends FileGenerator
 
     public function generateDeleteMethodArguments() : string
     {
-        return "{$this->entityVar}Id";
+        return "int {$this->entityVar}Id";
     }
 
     public function generateFetchMethodContent() : string
     {
-        return "{$this->entityVar} = {$this->entityRepository}::find( {$this->entityVar}Id );
+        return "{$this->entityVar} = {$this->entityRepository}::fetch( {$this->entityVar}Id );
         return {$this->entityVar} ?
 
         response()->json( [
@@ -160,12 +160,12 @@ class ControllerGenerator extends FileGenerator
 
     public function generateFetchMethodArguments() : string
     {
-        return "{$this->entityVar}Id";
+        return "int {$this->entityVar}Id";
     }
 
     public function generateListMethodContent() : string
     {
-        return "{$this->entityVar} = {$this->entityRepository}::paginate( \$request->validated() );
+        return "{$this->entityVar} = {$this->entityRepository}::list( \$request->validated() );
         return new {$this->entityCollection}( {$this->entityVar} );";
     }
 

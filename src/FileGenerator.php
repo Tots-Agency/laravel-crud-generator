@@ -216,12 +216,13 @@ abstract class FileGenerator implements FileGeneratorInterface
         $this->fileContent = str_replace( '{{ traits }}', $this->fileTraits, $this->fileContent );
     }
 
-    public static function generateMethodTemplate( $methodName, $methodArguments = '', $methodReturnType = 'void', $methodScope = 'public' ) : string
+    public static function generateMethodTemplate( $methodName, $methodArguments = '', $methodReturnType = 'void', $methodIsStatic = false, $methodScope = 'public' ) : string
     {
         $methodTemplate = File::get( __DIR__ . '/Stubs/method.stub' );
         $methodTemplate = str_replace( '{{ method_name }}', $methodName, $methodTemplate );
         $methodTemplate = str_replace( '{{ method_arguments }}', $methodArguments, $methodTemplate );
         $methodTemplate = str_replace( '{{ method_return_type }}', $methodReturnType, $methodTemplate );
+        $methodTemplate = str_replace( '{{ method_static }}', $methodIsStatic? ' static' : '', $methodTemplate );
         $methodTemplate = str_replace( '{{ method_scope }}', $methodScope, $methodTemplate );
         $methodTemplate = str_replace( '\\t', "\t", $methodTemplate );
         return $methodTemplate;
