@@ -84,7 +84,7 @@ abstract class FileGenerator implements FileGeneratorInterface
     public function setGeneratorData() : void
     {
         $fileType = $this->fileType;
-        $this->fileData = $this->entityData? $this->entityData->$fileType : null;
+        $this->fileData = isset( $this->entityData ) && property_exists( $this->entityData, $fileType )? $this->entityData->$fileType : null;
     }
 
     public function setFilePath() : void
@@ -123,7 +123,7 @@ abstract class FileGenerator implements FileGeneratorInterface
         if( ( $this->fileData && property_exists( $this->fileData, 'extends' ) ) || ( isset( $this->configurationOptions[ $this->fileType ][ 'extends' ] ) && $this->configurationOptions[ $this->fileType ][ 'extends' ] ) )
         {
             $extendUrl = $this->fileData && property_exists( $this->fileData, 'extends' )? $this->fileData->extends : $this->configurationOptions[ $this->fileType ][ 'extends' ];
-            $this->fileExtends = 'extends ' . self::getClassNameFromUrl( $extendUrl );
+            $this->fileExtends = ' extends ' . self::getClassNameFromUrl( $extendUrl );
         }
     }
 
@@ -137,7 +137,7 @@ abstract class FileGenerator implements FileGeneratorInterface
             {
                 $interfaces[ $key ] = self::getClassNameFromUrl( $interfaceUrl );
             }
-            $this->fileInterfaces = 'implements ' . implode( ', ', $interfaces );
+            $this->fileInterfaces = ' implements ' . implode( ', ', $interfaces );
         }
     }
 
@@ -179,7 +179,8 @@ abstract class FileGenerator implements FileGeneratorInterface
 
     public function setClassNamespace() : void
     {
-        $this->classNamespace = $this->fileData && property_exists( $this->fileData, 'namespace' )? $this->fileData->namespace : $this->configurationOptions[ $this->fileType ][ 'namespace' ];
+        if( $this->fileType !== 'routes' )
+            $this->classNamespace = $this->fileData && property_exists( $this->fileData, 'namespace' )? $this->fileData->namespace : $this->configurationOptions[ $this->fileType ][ 'namespace' ];
     }
 
     public function fileShouldBeCreated() : bool

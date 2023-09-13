@@ -47,8 +47,8 @@ class ControllerGenerator extends FileGenerator
 
     public function setEntityRepository() : void
     {
-        $this->entityRepository = $this->entityName . 'Repository';
-        $this->fileUseUrls[] = "App\\Repositories\\{$this->entityRepository}";
+        $this->entityRepository = $this->entityData->repositoryClassname;
+        $this->fileUseUrls[] = $this->entityData->repositoryUrl;
     }
 
     public function setEntityResource() : void

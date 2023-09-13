@@ -22,13 +22,14 @@ class LaravelCrudGenerator
         $this->command->newLine();
         foreach( get_object_vars( $this->crudData->entities ) as $entityName => $entityData )
         {
-            $entityData = !empty( (array) $entityData )? $entityData : null;
-            $files = $entityData && $entityData->files? $entityData->files : $this->configurationOptions[ 'files' ];
+            // $entityData = !empty( (array) $entityData )? $entityData : null;
+            // $files = $entityData && $entityData->files? $entityData->files : $this->configurationOptions[ 'files' ];
+            $entityData = $this->setEntityData( $entityName, $entityData );
             $this->command->line( "<options=bold;fg=bright-yellow;>⚡</><options=bold;fg=bright-magenta;> CRUD generation for {$entityName}</>" );
-            foreach( $files as $file )
+            foreach( $entityData->files as $file )
             {
-                if( in_array( $file, [ 'model', 'controller', 'repository' ] ) )
-                $this->generateFile( $file, $entityName, $entityData );
+                if( in_array( $file, [ 'routes', 'model', 'controller', 'repository' ] ) )
+                    $this->generateFile( $file, $entityName, $entityData );
             }
             $this->command->line( "<options=bold;fg=bright-white;>└─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=bright-cyan;> {$entityName} has been generated successfully</>" );
             $this->command->newLine();
@@ -43,5 +44,48 @@ class LaravelCrudGenerator
         $generator->createFile()?
             $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=white;> {$fileType}</>" ):
             $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-red;>❌</><options=bold;fg=red;> {$fileType}</>" );
+    }
+
+    public function setEntityData( string $entityName, object $entityData )
+    {
+        $entityData = !empty( (array) $entityData )? $entityData : null;
+        if( !$entityData ) $entityData = new \stdClass();
+        $entityData->files = $entityData && property_exists( $entityData, 'files' )? $entityData->files : $this->configurationOptions[ 'files' ];
+
+        foreach( [ 'model', 'controller', 'repository' ] as $globalEntity )
+            $entityData = $this->setGlobalEntity( $globalEntity, $entityName, $entityData );
+
+        // $modelIsSet = property_exists( $entityData, 'model' );
+        // $entityData->modelClassname = $modelIsSet && property_exists( $entityData->model, 'classname' )? $entityData->model->classname : $entityName;
+
+        // $controllerIsSet = property_exists( $entityData, 'controller' );
+        // $entityData->controllerClassname = $controllerIsSet && property_exists( $entityData->controller, 'classname' )? $entityData->controller->classname : $entityName . 'Controller';
+        // $entityData->controllerFilePath = $controllerIsSet && property_exists( $entityData->controller, 'filePath' )? $entityData->controller->filePath : $this->configurationOptions[ 'controller' ][ 'file_path' ];
+        // $entityData->controllerNamespace = $controllerIsSet && property_exists( $entityData->controller, 'namespace' )? $entityData->namespace : $this->configurationOptions[ 'controller' ][ 'namespace' ];
+        // $entityData->controllerUrl = $entityData->controllerNamespace . '\\' . $entityData->controllerClassname;
+
+        // $repositoryIsSet = property_exists( $entityData, 'repository' );
+        // $entityData->repositoryClassname = $repositoryIsSet && property_exists( $entityData->repository, 'classname' )? $entityData->repository->classname : $entityName . 'Repository';
+        // $entityData->repositoryFilePath = $repositoryIsSet && property_exists( $entityData->repository, 'filePath' )? $entityData->repository->filePath : $this->configurationOptions[ 'repository' ][ 'file_path' ];
+        // $entityData->repositoryNamespace = $repositoryIsSet && property_exists( $entityData->repository, 'namespace' )? $entityData->namespace : $this->configurationOptions[ 'repository' ][ 'namespace' ];
+        // $entityData->repositoryUrl = $entityData->repositoryNamespace . '\\' . $entityData->repositoryClassname;
+
+        // $entityData->controller_url = $this->fileData && property_exists( $this->fileData, 'filePath' )? $this->fileData->filePath : $this->configurationOptions[ $this->fileType ][ 'file_path' ];
+        return $entityData;
+    }
+
+    public function setGlobalEntity( string $globalEntity, string $entityName, object $entityData )
+    {
+        $entityIsSet = property_exists( $entityData, $globalEntity );
+        $classnameAttribute = $globalEntity."Classname";
+        $filePathAttribute = $globalEntity."FilePath";
+        $namespaceAttribute = $globalEntity."Namespace";
+        $urlAttribute = $globalEntity."Url";
+        $defaultClassname = $globalEntity == 'model'? '' : ucfirst( $globalEntity );
+        $entityData->$classnameAttribute = $entityIsSet && property_exists( $entityData->$globalEntity, 'classname' )? $entityData->$globalEntity->classname : $entityName . $defaultClassname;
+        $entityData->$filePathAttribute = $entityIsSet && property_exists( $entityData->$globalEntity, 'filePath' )? $entityData->$globalEntity->filePath : $this->configurationOptions[ $globalEntity ][ 'file_path' ];
+        $entityData->$namespaceAttribute = $entityIsSet && property_exists( $entityData->$globalEntity, 'namespace' )? $entityData->$globalEntity->namespace : $this->configurationOptions[ $globalEntity ][ 'namespace' ];
+        $entityData->$urlAttribute = $entityData->$namespaceAttribute . '\\' . $entityData->$classnameAttribute;
+        return $entityData;
     }
 }

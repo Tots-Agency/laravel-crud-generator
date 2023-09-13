@@ -8,7 +8,7 @@ class ModelGenerator extends FileGenerator
 {
     protected string $table = '';
     protected string $primaryKey = '';
-    protected string $attributes = '';
+    protected string $fillable = '';
     protected string $accessors = '';
     protected string $mutators = '';
     protected string $relations = '';
@@ -17,6 +17,7 @@ class ModelGenerator extends FileGenerator
     {
         $this->setTable();
         $this->setPrimaryKey();
+        $this->setFillable();
     }
 
     public function setClassname() : void
@@ -36,11 +37,30 @@ class ModelGenerator extends FileGenerator
             $this->primaryKey = "protected \$primaryKey = '" . $this->fileData->primaryKey . "';\n\t";
     }
 
+    public function setFillable() : void
+    {
+        if( $this->entityData && property_exists( $this->entityData, 'attributes' ) && !empty( $this->entityData->attributes ) )
+        {
+            //$attributes = "'" . implode( "',\n\t'", array_keys( $this->entityData->attributes ) ) . "'\n\t'";
+            $attributes = $this->setAttributes( $this->entityData->attributes );
+            $this->fillable = "protected \$fillable = [" . $attributes . "\n\t];\n\t";
+        }
+    }
+
+    public function setAttributes( object $attributes ) : string
+    {
+        $stringAttributes = '';
+        foreach( $attributes as $attributeName => $object )
+            $stringAttributes .= "\n\t\t'" . $attributeName . "',";
+        return $stringAttributes;
+    }
+
     public function generateFileContent() : void
     {
         parent::generateFileContent();
         $this->fileContent = str_replace( '{{ table }}', $this->table, $this->fileContent );
         $this->fileContent = str_replace( '{{ primary_key }}', $this->primaryKey, $this->fileContent );
+        $this->fileContent = str_replace( '{{ fillable }}', $this->fillable, $this->fileContent );
         $this->fileContent = str_replace( '{{ accessors }}', $this->accessors, $this->fileContent );
         $this->fileContent = str_replace( '{{ mutators }}', $this->mutators, $this->fileContent );
         $this->fileContent = str_replace( '{{ relations }}', $this->relations, $this->fileContent );

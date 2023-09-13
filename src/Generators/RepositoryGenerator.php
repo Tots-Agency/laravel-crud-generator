@@ -38,8 +38,8 @@ class RepositoryGenerator extends FileGenerator
 
     public function setEntityModel() : void
     {
-        $this->entityModel = $this->entityName;
-        $this->fileUseUrls[] = "App\\Models\\{$this->entityModel}";
+        $this->entityModel = $this->entityData->modelClassname;
+        $this->fileUseUrls[] = $this->entityData->modelUrl;
     }
 
     public function setMethods() : void

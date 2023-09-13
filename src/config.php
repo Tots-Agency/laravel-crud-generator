@@ -5,6 +5,15 @@ return [
     "rewrite" => env( "LARAVEL_CRUD_GENERATOR_RERWRITE" ) ?? true,
     "files" => [ "routes", "model", "controller", "migration", "factory", "repository", "test" ],
     "relations" => [],
+    "routes" => [
+        "use" => [],
+        "traits" => [],
+        "interfaces" => [],
+        "extends" => null,
+        "file_path" => "routes/entities",
+        "namespace" => null,
+        "rewrite" => true
+    ],
     "model" => [
         "use" => [],
         "traits" => [],

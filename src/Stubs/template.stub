@@ -2,6 +2,6 @@
 
 namespace {{ namespace }};
 
-{{ use }}class {{ classname }} {{ extends }} {{ interfaces }}
+{{ use }}class {{ classname }}{{ extends }}{{ interfaces }}
 {
 {{ traits }}{{ file_stub }}}
