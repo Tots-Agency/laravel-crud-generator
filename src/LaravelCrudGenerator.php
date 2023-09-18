@@ -54,23 +54,6 @@ class LaravelCrudGenerator
 
         foreach( [ 'model', 'controller', 'repository' ] as $globalEntity )
             $entityData = $this->setGlobalEntity( $globalEntity, $entityName, $entityData );
-
-        // $modelIsSet = property_exists( $entityData, 'model' );
-        // $entityData->modelClassname = $modelIsSet && property_exists( $entityData->model, 'classname' )? $entityData->model->classname : $entityName;
-
-        // $controllerIsSet = property_exists( $entityData, 'controller' );
-        // $entityData->controllerClassname = $controllerIsSet && property_exists( $entityData->controller, 'classname' )? $entityData->controller->classname : $entityName . 'Controller';
-        // $entityData->controllerFilePath = $controllerIsSet && property_exists( $entityData->controller, 'filePath' )? $entityData->controller->filePath : $this->configurationOptions[ 'controller' ][ 'file_path' ];
-        // $entityData->controllerNamespace = $controllerIsSet && property_exists( $entityData->controller, 'namespace' )? $entityData->namespace : $this->configurationOptions[ 'controller' ][ 'namespace' ];
-        // $entityData->controllerUrl = $entityData->controllerNamespace . '\\' . $entityData->controllerClassname;
-
-        // $repositoryIsSet = property_exists( $entityData, 'repository' );
-        // $entityData->repositoryClassname = $repositoryIsSet && property_exists( $entityData->repository, 'classname' )? $entityData->repository->classname : $entityName . 'Repository';
-        // $entityData->repositoryFilePath = $repositoryIsSet && property_exists( $entityData->repository, 'filePath' )? $entityData->repository->filePath : $this->configurationOptions[ 'repository' ][ 'file_path' ];
-        // $entityData->repositoryNamespace = $repositoryIsSet && property_exists( $entityData->repository, 'namespace' )? $entityData->namespace : $this->configurationOptions[ 'repository' ][ 'namespace' ];
-        // $entityData->repositoryUrl = $entityData->repositoryNamespace . '\\' . $entityData->repositoryClassname;
-
-        // $entityData->controller_url = $this->fileData && property_exists( $this->fileData, 'filePath' )? $this->fileData->filePath : $this->configurationOptions[ $this->fileType ][ 'file_path' ];
         return $entityData;
     }
 

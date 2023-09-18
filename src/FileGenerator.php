@@ -117,6 +117,14 @@ abstract class FileGenerator implements FileGeneratorInterface
         $this->fileUseUrls = array_merge( $this->fileUseUrls, $this->fileData && property_exists( $this->fileData, 'use' )? $this->fileData->use : $this->configurationOptions[ $this->fileType ][ 'use' ] );
     }
 
+    public function addFileUseUrl( string $url ) : void
+    {
+        if( !in_array( $url, $this->fileUseUrls ) )
+        {
+            $this->fileUseUrls[] = $url;
+        }
+    }
+
     public function setFileExtends() : void
     {
         $this->fileExtends = '';
@@ -219,14 +227,26 @@ abstract class FileGenerator implements FileGeneratorInterface
 
     public static function generateMethodTemplate( $methodName, $methodArguments = '', $methodReturnType = 'void', $methodIsStatic = false, $methodScope = 'public' ) : string
     {
-        $methodTemplate = File::get( __DIR__ . '/Stubs/method.stub' );
-        $methodTemplate = str_replace( '{{ method_name }}', $methodName, $methodTemplate );
-        $methodTemplate = str_replace( '{{ method_arguments }}', $methodArguments, $methodTemplate );
-        $methodTemplate = str_replace( '{{ method_return_type }}', $methodReturnType, $methodTemplate );
-        $methodTemplate = str_replace( '{{ method_static }}', $methodIsStatic? ' static' : '', $methodTemplate );
-        $methodTemplate = str_replace( '{{ method_scope }}', $methodScope, $methodTemplate );
-        $methodTemplate = str_replace( '\\t', "\t", $methodTemplate );
-        return $methodTemplate;
+        $methodData = [
+            'method_name' => $methodName,
+            'method_arguments' => $methodArguments,
+            'method_return_type' => $methodReturnType,
+            'method_static' => $methodIsStatic? ' static' : '',
+            'method_scope' => $methodScope
+        ];
+        return self::generateFromTemplate( 'method', $methodData );
+    }
+
+    public static function generateFromTemplate( string $template, array $templateData ) : string
+    {
+        $template = File::get( __DIR__ . "/Stubs/$template.stub" );
+        foreach( $templateData as $variable => $value )
+        {
+            $template = str_replace( "{{ $variable }}", $value, $template );
+        }
+        $template = str_replace( "\\t", "\t", $template );
+        $template = str_replace( "\\n", "\n", $template );
+        return $template;
     }
 
 }

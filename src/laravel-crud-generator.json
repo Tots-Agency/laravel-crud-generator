@@ -15,40 +15,68 @@
             },
             "relations": {
                 "belongsTo": {
-                    "models": [ "ProductCategory", "Brand" ],
+                    "Brand" : {},
                     "ProductCategory": {
-                        "model": "App\\Models\\ProductCategory",
+                        "related": "App\\Models\\Products\\ProductCategory",
                         "foreingKey": "category_id",
-                        "localKey": "id",
-                        "relation": "product_category"
+                        "localKey": "idcategory",
+                        "relation": "product_category_relation_name"
+                    }
+                },
+                "hasOne": {
+                    "Post":{
+                        "related": "App\\Models\\Posts\\Post",
+                        "foreingKey": "product_id",
+                        "localKey": "id"
                     }
                 },
                 "belongsToMany": {
-
+                    "ProductTag":{
+                        "related": "App\\Models\\Products\\ProductTag",
+                        "table": "tags_products",
+                        "foreignPivotKey": "productid",
+                        "relatedPivotKey": "tagid",
+                        "parentKey": "idproducto",
+                        "relatedKey": "idtag",
+                        "relation": "product_tag_relation_name"
+                    }
                 },
                 "hasMany": {
-
-                },
-                "hasOne": {
-
+                    "SaleItem":{
+                        "related": "App\\Models\\Sales\\SaleItem",
+                        "foreingKey": "product_id",
+                        "localKey": "id"
+                    }
                 },
                 "hasManyThrough": {
-
+                    "Sale": {
+                        "related": "App\\Models\\Sales\\Sale",
+                        "through": "App\\Models\\Sales\\SaleItem",
+                        "firstKey": "product_id",
+                        "secondKey": "idsale",
+                        "localKey": "item_id",
+                        "secondLocalKey": "sale_id"
+                    }
                 },
-                "belongsToManyThrough": {
+                "morphTo" : {
+                    "imageable": {
+                        "type": "imageable_type",
+                        "id": "imageable_id",
+                        "owner": "id"
+                    },
+                    "testeable": {
 
-                },
-                "manyToMany": {
-
-                },
-                "manyToManyThrough": {
-
+                    }
                 },
                 "morphMany": {
 
                 },
                 "morphOne": {
-
+                    "Image": {
+                        "relationName": "image",
+                        "related": "App\\Models\\Images\\Image",
+                        "name": "image"
+                    }
                 }
             },
             "model": {
