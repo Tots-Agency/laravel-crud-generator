@@ -64,6 +64,7 @@ class ModelGenerator extends FileGenerator
             {
                 if( $relations != new \stdClass() )
                 {
+                    $relationType = Str::studly( $relationType );
                     $this->addFileUseUrl( "Illuminate\\Database\\Eloquent\\Relations\\" . $relationType );
                     $this->relations .= $this->setRelationMethods( $relationType, $relations );
                 }
@@ -76,10 +77,13 @@ class ModelGenerator extends FileGenerator
         $modelRelations = '';
         foreach( $relations as $modelRelation => $relationData )
         {
-            $classUrl = property_exists( $relationData, 'related' )? $relationData->related : $this->configurationOptions[ 'model' ][ 'namespace' ] . '\\' . $modelRelation;
-            $this->addFileUseUrl( $classUrl );
+            if( $relationType != 'MorphTo' )
+            {
+                $classUrl = property_exists( $relationData, 'related' )? $relationData->related : $this->configurationOptions[ 'model' ][ 'namespace' ] . '\\' . $modelRelation;
+                $this->addFileUseUrl( $classUrl );
+            }
 
-            $method = 'get' . Str::ucfirst( $relationType ) . 'RelationData';
+            $method = 'get' .  $relationType . 'RelationData';
             $templateData = $this->$method( $modelRelation, $relationData );
             $modelRelations .= parent::generateFromTemplate( 'relation', $templateData );
         }
@@ -179,19 +183,41 @@ class ModelGenerator extends FileGenerator
         ];
     }
 
-    public function getMorphManyRelationData( $relations ) : array
+    public function getMorphManyRelationData( string $modelRelation, object $relationData ) : array
     {
-        return [];
+        $name = $relationData->name ?? Str::camel( $modelRelation );
+        $relationContent = "$modelRelation::class, '$name'";
+        if( property_exists( $relationData, 'type' ) || property_exists( $relationData, 'id' ) || property_exists( $relationData, 'localKey' ) )
+        {
+            $type = $relationData->type ?? $modelRelation . '_type';
+            $id = $relationData->id ?? $modelRelation . '_id';
+            $localKey = property_exists( $relationData, 'localKey' )? ", '" . $relationData->localKey . "'" : null;
+            $relationContent .= ", '$type', '$id'" . $localKey;
+        }
+        return [
+            'relation_name' => $relationData->relationName ?? Str::camel( Str::plural( $modelRelation ) ),
+            'relation' => 'MorphMany',
+            'relation_method' => 'morphMany',
+            'relation_content' => $relationContent,
+        ];
     }
 
     public function getMorphOneRelationData( string $modelRelation, object $relationData ) : array
     {
         $name = $relationData->name ?? Str::sanke( $modelRelation );
+        $relationContent = "$modelRelation::class, '$name'";
+        if( property_exists( $relationData, 'type' ) || property_exists( $relationData, 'id' ) || property_exists( $relationData, 'localKey' ) )
+        {
+            $type = $relationData->type ?? $modelRelation . '_type';
+            $id = $relationData->id ?? $modelRelation . '_id';
+            $localKey = property_exists( $relationData, 'localKey' )? ", '" . $relationData->localKey . "'" : null;
+            $relationContent .= ", '$type', '$id'" . $localKey;
+        }
         return [
             'relation_name' => $relationData->relationName ?? Str::camel( $modelRelation ),
             'relation' => 'MorphOne',
             'relation_method' => 'morphOne',
-            'relation_content' => "$modelRelation::class, '$name'",
+            'relation_content' => $relationContent,
         ];
     }
 
@@ -204,5 +230,6 @@ class ModelGenerator extends FileGenerator
         $this->fileContent = str_replace( '{{ accessors }}', $this->accessors, $this->fileContent );
         $this->fileContent = str_replace( '{{ mutators }}', $this->mutators, $this->fileContent );
         $this->fileContent = str_replace( '{{ relations }}', $this->relations, $this->fileContent );
+        $this->fileContent = str_replace( '(  )', '()', $this->fileContent );
     }
 }

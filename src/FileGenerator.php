@@ -215,6 +215,7 @@ abstract class FileGenerator implements FileGeneratorInterface
 
     public function generateFileContent() : void
     {
+        $this->sanitizeUseUrls();
         $template = File::get( __DIR__ . '/Stubs/template.stub' );
         $this->fileContent = str_replace( '{{ file_stub }}', File::get( __DIR__ . "/Stubs/{$this->fileType}.stub" ), $template );
         $this->fileContent = str_replace( '{{ namespace }}', $this->classNamespace, $this->fileContent );
@@ -223,6 +224,19 @@ abstract class FileGenerator implements FileGeneratorInterface
         $this->fileContent = str_replace( '{{ extends }}', $this->fileExtends, $this->fileContent );
         $this->fileContent = str_replace( '{{ interfaces }}', $this->fileInterfaces, $this->fileContent );
         $this->fileContent = str_replace( '{{ traits }}', $this->fileTraits, $this->fileContent );
+    }
+
+    public function sanitizeUseUrls()
+    {
+        foreach( $this->fileUseUrls as $key => $url )
+        {
+            $url = str_replace( $this->classNamespace . '\\', '', $url );
+            if( strpos( $url, '\\' ) === false )
+            {
+                unset( $this->fileUseUrls[ $key ] );
+            }
+        }
+        sort( $this->fileUseUrls );
     }
 
     public static function generateMethodTemplate( $methodName, $methodArguments = '', $methodReturnType = 'void', $methodIsStatic = false, $methodScope = 'public' ) : string

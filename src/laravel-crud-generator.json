@@ -69,13 +69,17 @@
                     }
                 },
                 "morphMany": {
-
+                    "Image": {
+                        "relationName": "images",
+                        "related": "App\\Models\\Images\\Image",
+                        "name": "imageable"
+                    }
                 },
                 "morphOne": {
                     "Image": {
                         "relationName": "image",
                         "related": "App\\Models\\Images\\Image",
-                        "name": "image"
+                        "name": "imageable"
                     }
                 }
             },
