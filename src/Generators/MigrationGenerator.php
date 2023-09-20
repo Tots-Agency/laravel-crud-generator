@@ -2,58 +2,100 @@
 
 namespace TOTS\LaravelCrudGenerator\Generators;
 
+use Illuminate\Support\Facades\File;
 use TOTS\LaravelCrudGenerator\FileGenerator;
 use Illuminate\Support\Str;
 
-class ModelGenerator extends FileGenerator
+class MigrationGenerator extends FileGenerator
 {
     protected string $table = '';
-    protected string $primaryKey = '';
-    protected string $fillable = '';
-    protected string $accessors = '';
-    protected string $mutators = '';
+    protected string $columns = '';
     protected string $relations = '';
 
     public function setFileContent() : void
     {
         $this->setTable();
-        $this->setPrimaryKey();
-        $this->setFillable();
+        $this->setColumns();
+        $this->setRelations();
         $this->setRelations();
     }
 
     public function setClassname() : void
     {
-        $this->classname = $this->fileData && property_exists( $this->fileData, 'classname' )? $this->fileData->classname : $this->entityName;
+        $this->classname = $this->fileData && property_exists( $this->fileData, 'classname' )? $this->fileData->classname : 'Create' . Str::plural( $this->entityName ) . 'Table';
     }
 
     public function setTable() : void
     {
-        if( $this->fileData && property_exists( $this->fileData, 'table' ) )
-            $this->table = "protected \$table = '" . $this->fileData->table . "';\n\t";
+        $this->table = $this->fileData && property_exists( $this->fileData, 'table' )? $this->fileData->table : Str::snake( Str::plural( $this->entityName ) );
     }
 
-    public function setPrimaryKey() : void
+    public function setColumns() : void
     {
-        if( $this->fileData && property_exists( $this->fileData, 'primaryKey' ) )
-            $this->primaryKey = "protected \$primaryKey = '" . $this->fileData->primaryKey . "';\n\t";
-    }
-
-    public function setFillable() : void
-    {
+        $this->columns = "\n";
+        $this->columns .= $this->setIdColumn();
         if( $this->entityData && property_exists( $this->entityData, 'attributes' ) && !empty( $this->entityData->attributes ) )
         {
-            $attributes = $this->setAttributes( $this->entityData->attributes );
-            $this->fillable = "protected \$fillable = [" . $attributes . "\n\t];\n";
+            foreach( $this->entityData->attributes as $attributeName => $object )
+            {
+                if( in_array( $object->type, [ 'id', 'timestamps', 'softDeletes' ] ) )
+                {
+                    $methodName = 'set' . Str::camel( $attributeName ) . 'Column';
+                    $this->columns .= $this->$methodName( $object );
+                }else{
+                    $templateData = $this->createColumnTemplateData( $attributeName, $object );
+                    $this->columns .= parent::generateFromTemplate( 'column', $templateData );
+                }
+            }
         }
+        $this->columns .= $this->setTimestampsColumn();
+        $this->columns .= $this->setSoftDeletesColumn();
     }
 
-    public function setAttributes( object $attributes ) : string
+    public function setIdColumn() : string
     {
-        $stringAttributes = '';
-        foreach( $attributes as $attributeName => $object )
-            $stringAttributes .= "\n\t\t'" . $attributeName . "',";
-        return $stringAttributes;
+        $name = $this->fileData && property_exists( $this->fileData, 'id' ) && $this->fileData->id !== false? $this->fileData->id : null;
+        $name =  $name ?? $this->configurationOptions[ 'migration' ][ 'id' ];
+        if( !$name || $name === false ) return '';
+        $name = $name === 'id' || $name === true? '' : " '$name' ";
+        return "\t\t\t\$table->id($name);\n";
+    }
+
+    public function setTimestampsColumn() : string
+    {
+        $timestamps = $this->fileData && property_exists( $this->fileData, 'timestamps' ) && $this->fileData->timestamps !== false? $this->fileData->timestamps : null;
+        $timestamps = $timestamps ?? $this->configurationOptions[ 'migration' ][ 'timestamps' ];
+        if( !$timestamps || $timestamps === false ) return '';
+        return "\t\t\t\$table->timestamps();\n";
+    }
+
+    public function setSoftDeletesColumn() : string
+    {
+        $softDeletes = $this->fileData && property_exists( $this->fileData, 'softDeletes' ) && $this->fileData->softDeletes !== false? $this->fileData->softDeletes : null;
+        $softDeletes = $softDeletes ?? $this->configurationOptions[ 'migration' ][ 'softDeletes' ];
+        if( !$softDeletes || $softDeletes === false ) return '';
+        return "\t\t\t\$table->softDeletes();\n";
+    }
+
+    public function createColumnTemplateData( string $attributeName, object $object ) : array
+    {
+        $columnType = $object->type;
+        $columnValue = $attributeName;
+        $unique = property_exists( $object, 'unique' ) && $object->unique == true? '->unique()' : '';
+        $nullable = property_exists( $object, 'nullable' ) && $object->nullable == true? '->nullable()' : '';
+        $default = property_exists( $object, 'default' ) && $object->default? "->default( '$object->default' )" : '';
+        $parameter1 = property_exists( $object, 'parameter1' ) && $object->parameter1 ?? '';
+        $parameter2 = property_exists( $object, 'parameter2' ) && $object->parameter2 ?? '';
+
+        return [
+            'column_type' => $columnType,
+            'column_value' => $columnValue,
+            'parameter1' => $parameter1,
+            'parameter2' => $parameter2,
+            'unique' => $unique,
+            'nullable' => $nullable,
+            'default' => $default,
+        ];
     }
 
     public function setRelations() : void
@@ -65,14 +107,13 @@ class ModelGenerator extends FileGenerator
                 if( $relations != new \stdClass() )
                 {
                     $relationType = Str::studly( $relationType );
-                    $this->addFileUseUrl( "Illuminate\\Database\\Eloquent\\Relations\\" . $relationType );
-                    $this->relations .= $this->setRelationMethods( $relationType, $relations );
+                    $this->relations .= $this->setRelationColumns( $relationType, $relations );
                 }
             }
         }
     }
 
-    public function setRelationMethods( string $relationType, object $relations ) : string
+    public function setRelationColumns( string $relationType, object $relations ) : string
     {
         $modelRelations = '';
         foreach( $relations as $modelRelation => $relationData )
@@ -80,7 +121,6 @@ class ModelGenerator extends FileGenerator
             if( $relationType != 'MorphTo' )
             {
                 $classUrl = property_exists( $relationData, 'related' )? $relationData->related : $this->configurationOptions[ 'model' ][ 'namespace' ] . '\\' . $modelRelation;
-                $this->addFileUseUrl( $classUrl );
             }
 
             $method = 'get' .  $relationType . 'RelationData';
@@ -221,15 +261,24 @@ class ModelGenerator extends FileGenerator
         ];
     }
 
+    public function setFileName() : void
+    {
+        $this->fileName = date( 'Y_m_d_His' ) . '_' . Str::snake( $this->classname ) . '.php';
+    }
+
     public function generateFileContent() : void
     {
-        parent::generateFileContent();
+        $this->fileContent = File::get( __DIR__ . '/../Stubs/migration.stub' );
+        $this->fileContent = str_replace( "\\t", "\t", $this->fileContent );
+        $this->fileContent = str_replace( "\\n", "\n", $this->fileContent );
+        $this->fileContent = str_replace( '{{ namespace }}', $this->classNamespace, $this->fileContent );
+        $this->fileContent = str_replace( '{{ use }}', empty( $this->fileUseUrls )? '' : 'use ' . implode( ";\nuse ", $this->fileUseUrls ) . ";\n\n", $this->fileContent );
+        $this->fileContent = str_replace( '{{ classname }}', $this->classname, $this->fileContent );
+        $this->fileContent = str_replace( '{{ extends }}', $this->fileExtends, $this->fileContent );
+        $this->fileContent = str_replace( '{{ interfaces }}', $this->fileInterfaces, $this->fileContent );
+        $this->fileContent = str_replace( '{{ traits }}', $this->fileTraits, $this->fileContent );
         $this->fileContent = str_replace( '{{ table }}', $this->table, $this->fileContent );
-        $this->fileContent = str_replace( '{{ primary_key }}', $this->primaryKey, $this->fileContent );
-        $this->fileContent = str_replace( '{{ fillable }}', $this->fillable, $this->fileContent );
-        $this->fileContent = str_replace( '{{ accessors }}', $this->accessors, $this->fileContent );
-        $this->fileContent = str_replace( '{{ mutators }}', $this->mutators, $this->fileContent );
+        $this->fileContent = str_replace( '{{ columns }}', $this->columns, $this->fileContent );
         $this->fileContent = str_replace( '{{ relations }}', $this->relations, $this->fileContent );
-        $this->fileContent = str_replace( '(  )', '()', $this->fileContent );
     }
 }

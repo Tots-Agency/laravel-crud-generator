@@ -61,21 +61,11 @@ abstract class FileGenerator implements FileGeneratorInterface
         $this->fileType = strtolower( str_replace( [ 'TOTS\\LaravelCrudGenerator\\Generators\\', 'Generator' ], '', get_class( $this ) ) );
     }
 
-    /**
-     * Set the value of the entity's singular name.
-     *
-     * @return void
-     */
     public function setEntitySingularName() : void
     {
         $this->entitySingularName = strtolower( $this->entityData && property_exists( $this->entityData, 'nameSingular' )? $this->entityData->nameSingular : $this->entityName );
     }
 
-    /**
-     * Set the value of the entity's plural name.
-     *
-     * @return void
-     */
     public function setEntityPluralName() : void
     {
         $this->entityPluralName = strtolower( $this->entityData && property_exists( $this->entityData, 'namePlural' )? $this->entityData->namePlural : Str::plural( $this->entitySingularName ) );
@@ -165,7 +155,8 @@ abstract class FileGenerator implements FileGeneratorInterface
 
     public function setClassname() : void
     {
-        $this->classname = $this->fileData && property_exists( $this->fileData, 'classname' )? $this->fileData->classname : $this->entityName . ucfirst( $this->fileType );
+        $classname = $this->fileData && property_exists( $this->fileData, 'classname' )? $this->fileData->classname : $this->entityName . ucfirst( $this->fileType );
+        $this->classname = $classname ?? '';
     }
 
     public function generateFile() : void
@@ -188,7 +179,10 @@ abstract class FileGenerator implements FileGeneratorInterface
     public function setClassNamespace() : void
     {
         if( $this->fileType !== 'routes' )
-            $this->classNamespace = $this->fileData && property_exists( $this->fileData, 'namespace' )? $this->fileData->namespace : $this->configurationOptions[ $this->fileType ][ 'namespace' ];
+        {
+            $classNamespace = $this->fileData && property_exists( $this->fileData, 'namespace' )? $this->fileData->namespace : $this->configurationOptions[ $this->fileType ][ 'namespace' ];
+            $this->classNamespace = $classNamespace ?? '';
+        }
     }
 
     public function fileShouldBeCreated() : bool

@@ -44,4 +44,16 @@ return [
         "methods" => [ "list", "fetch", "store", "update", "delete" ],
         "rewrite" => true
     ],
+    "migration" => [
+        "use" => [ 'Illuminate\Database\Schema\Blueprint', 'Illuminate\Support\Facades\Schema' ],
+        "traits" => [],
+        "interfaces" => [],
+        "extends" => "Illuminate\Database\Migrations\Migration",
+        "file_path" => "database/migrations",
+        "namespace" => null,
+        "timestamps" => true,
+        "softDeletes" => true,
+        "id" => true,
+        "rewrite" => true
+    ],
 ];

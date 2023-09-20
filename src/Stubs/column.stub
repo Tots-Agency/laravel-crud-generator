@@ -1,0 +1,1 @@
+\t\t\t$table->{{ column_type }}( '{{ column_value }}'{{ parameter1 }}{{ parameter2 }} ){{ unique }}{{ default }}{{ nullable }};

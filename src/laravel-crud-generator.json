@@ -11,6 +11,16 @@
                     "nullable": false,
                     "unique": true,
                     "default": "Default Test Product"
+                },
+                "description": {
+                    "type": "text",
+                    "nullable": true,
+                    "unique": false
+                },
+                "category_id": {
+                    "type": "bigInteger",
+                    "nullable": false,
+                    "unique": false
                 }
             },
             "relations": {
