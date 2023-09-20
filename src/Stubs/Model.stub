@@ -1,1 +1,1 @@
-{{ table }}{{ primary_key }}{{ fillable }}{{ mutators }}{{ accessors }}{{ relations }}
+    {{ table }}{{ primary_key }}{{ fillable }}{{ mutators }}{{ accessors }}{{ relations }}

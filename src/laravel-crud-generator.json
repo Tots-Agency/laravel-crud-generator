@@ -98,7 +98,7 @@
                 "filePath": "app/Models",
                 "classname": "Product",
                 "table": "products",
-                "primaryKey": "id",
+                "primaryKey": "idproduct",
                 "traits": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
                 "interfaces": [ "Illuminate\\Contracts\\Auth\\MustVerifyEmail" ],
                 "extends": "Illuminate\\Foundation\\Auth\\User as Authenticatable",
@@ -116,6 +116,7 @@
             },
             "migration": {
                 "table": "products",
+                "id": "idproduct",
                 "filePath": "database/migrations"
             },
             "factory": {
