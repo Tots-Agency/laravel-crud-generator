@@ -9,7 +9,7 @@
      */
     public function up()
     {
-        Schema::create( '{{ table }}', function (Blueprint $table) {{{ columns }}\t\t});
+        Schema::create( '{{ table }}', function (Blueprint $table) {{{ columns }}{{ constraints }}\t\t});
     }
 
     /**

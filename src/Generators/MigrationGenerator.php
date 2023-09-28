@@ -5,19 +5,21 @@ namespace TOTS\LaravelCrudGenerator\Generators;
 use Illuminate\Support\Facades\File;
 use TOTS\LaravelCrudGenerator\FileGenerator;
 use Illuminate\Support\Str;
+use \stdClass;
 
 class MigrationGenerator extends FileGenerator
 {
     protected string $table = '';
     protected string $columns = '';
-    protected string $relations = '';
+    protected string $constraints = '';
+    protected array $morphs = [];
+    protected array $manyToMany = [];
 
     public function setFileContent() : void
     {
         $this->setTable();
+        $this->setRelationsAndConstraints();
         $this->setColumns();
-        $this->setRelations();
-        $this->setRelations();
     }
 
     public function setClassname() : void
@@ -34,6 +36,7 @@ class MigrationGenerator extends FileGenerator
     {
         $this->columns = "\n";
         $this->columns .= $this->setIdColumn();
+        $this->columns .= $this->setMorphsColumns();
         if( $this->entityData && property_exists( $this->entityData, 'attributes' ) && !empty( $this->entityData->attributes ) )
         {
             foreach( $this->entityData->attributes as $attributeName => $object )
@@ -59,6 +62,17 @@ class MigrationGenerator extends FileGenerator
         if( !$name || $name === false ) return '';
         $name = $name === 'id' || $name === true? '' : " '$name' ";
         return "\t\t\t\$table->id($name);\n";
+    }
+
+    public function setMorphsColumns() : string
+    {
+        $morphColumns = '';
+        foreach( $this->morphs as $column => $columnData )
+        {
+            $type = $columnData? 'nullableMorphs' : 'morphs';
+            $morphColumns .= "\t\t\t\$table->$type( '$column' );\n";
+        }
+        return $morphColumns;
     }
 
     public function setTimestampsColumn() : string
@@ -98,167 +112,107 @@ class MigrationGenerator extends FileGenerator
         ];
     }
 
-    public function setRelations() : void
+    public function setRelationsAndConstraints() : void
     {
         if( $this->entityData && property_exists( $this->entityData, 'relations' ) && !empty( $this->entityData->relations ) )
         {
             foreach( $this->entityData->relations as $relationType => $relations )
             {
-                if( $relations != new \stdClass() )
+                $relationType = Str::studly( $relationType );
+                if( $relations != new stdClass() )
                 {
-                    $relationType = Str::studly( $relationType );
-                    $this->relations .= $this->setRelationColumns( $relationType, $relations );
+                    if( $relationType == 'BelongsTo' )
+                    {
+                        $this->constraints .= $this->setBelongsToConstraints( $relationType, $relations );
+                    }
+                    if( $relationType == 'BelongsToMany' )
+                    {
+                        $this->manyToMany = (array) $relations;
+                        // $this->constraints .= $this->setBelongsToManyConstraints( $relationType, $relations );
+                    }
+                    if( $relationType == 'MorphTo' )
+                    {
+                        foreach( $relations as $relationName => $relationData )
+                        {
+                            $this->morphs[ Str::snake( $relationName ) ] = [
+                                'nullable' => $relationData->nullable ?? true,
+                            ];
+                        }
+                    }
+
                 }
             }
         }
     }
 
-    public function setRelationColumns( string $relationType, object $relations ) : string
+    public function setBelongsToConstraints( string $relationType, object $relations ) : string
     {
-        $modelRelations = '';
+        $constraints = "\n\t\t\t// $relationType\n";
         foreach( $relations as $modelRelation => $relationData )
         {
-            if( $relationType != 'MorphTo' )
-            {
-                $classUrl = property_exists( $relationData, 'related' )? $relationData->related : $this->configurationOptions[ 'model' ][ 'namespace' ] . '\\' . $modelRelation;
-            }
-
-            $method = 'get' .  $relationType . 'RelationData';
-            $templateData = $this->$method( $modelRelation, $relationData );
-            $modelRelations .= parent::generateFromTemplate( 'relation', $templateData );
+            $column = $relationData->foreingKey ?? Str::snake( $modelRelation ) . '_id';
+            $table = Str::snake( Str::plural( $modelRelation ) );
+            $reference = $relationData->localKey ?? $this->fileData->primaryKey ?? 'id';
+            $extra = "->references( '$reference' )->on( '$table' )";
+            $templateData = [
+                'type' => 'foreign',
+                'column' => $column,
+                'extra' => $extra,
+            ];
+            $constraints .= parent::generateFromTemplate( 'constraint', $templateData );
         }
-        return $modelRelations;
+        return $constraints;
     }
 
-    public function getBelongsToRelationData( string $modelRelation, object $relationData ) : array
+    public function generateManyToManyMigrations() : void
     {
-        $foreingKey = $relationData->foreingKey ?? Str::snake( $modelRelation ) . '_id';
-        $localKey = $relationData->localKey ?? $this->fileData->primaryKey ?? 'id';
-        $relation = property_exists( $relationData, 'relation' )? ", '" . $relationData->relation . "'" : '';
-        return [
-            'relation_name' => $relationData->relationName ?? Str::camel( $modelRelation ),
-            'relation' => 'BelongsTo',
-            'relation_method' => 'belongsTo',
-            'relation_content' => "$modelRelation::class, '$foreingKey', '$localKey'" . $relation,
-        ];
-    }
-
-    public function getHasOneRelationData( string $modelRelation, object $relationData ) : array
-    {
-        $foreingKey = $relationData->foreingKey ?? Str::snake( $modelRelation );
-        $localKey = $relationData->localKey ?? $this->fileData->primaryKey ?? 'id';
-        return [
-            'relation_name' => $relationData->relationName ?? Str::camel( $modelRelation ),
-            'relation' => 'HasOne',
-            'relation_method' => 'hasOne',
-            'relation_content' => "$modelRelation::class, '$foreingKey', '$localKey'",
-        ];
-    }
-
-    public function getBelongsToManyRelationData( string $modelRelation, object $relationData ) : array
-    {
-        $table = $relationData->table ?? Str::snake( Str::singular( $this->entityName ) ) . '_' . Str::snake( $modelRelation );
-        $foreignPivotKey = $relationData->foreignPivotKey ?? Str::snake( Str::singular( $this->entityName ) ) . '_id';
-        $relatedPivotKey = $relationData->relatedPivotKey ?? Str::snake( $modelRelation ) . '_id';
-        $parentKey = $relationData->parentKey ?? $this->fileData->primaryKey ?? 'id';
-        $relatedKey = $relationData->relatedKey ?? 'id';
-        $relation = property_exists( $relationData, 'relation' )? ", '" . $relationData->relation . "'" : '';
-        return [
-            'relation_name' => $relationData->relationName ?? Str::plural( Str::camel( $modelRelation ) ),
-            'relation' => 'BelongsToMany',
-            'relation_method' => 'belongsToMany',
-            'relation_content' => "$modelRelation::class, '$table', '$foreignPivotKey', '$relatedPivotKey', '$parentKey', '$relatedKey'" . $relation,
-        ];
-    }
-
-    public function getHasManyRelationData( string $modelRelation, object $relationData ) : array
-    {
-        $foreingKey = $relationData->foreingKey ?? Str::snake( $modelRelation );
-        $localKey = $relationData->localKey ?? $this->fileData->primaryKey ?? 'id';
-        return [
-            'relation_name' => $relationData->relationName ?? Str::plural( Str::camel( $modelRelation ) ),
-            'relation' => 'HasMany',
-            'relation_method' => 'hasMany',
-            'relation_content' => "$modelRelation::class, '$foreingKey', '$localKey'",
-        ];
-    }
-    public function getHasManyThroughRelationData( string $modelRelation, object $relationData ) : array
-    {
-        $through = $relationData->through ?? $this->entityName . $modelRelation;
-        if( strpos( $through, '\\' ) !== false )
+        foreach( $this->manyToMany as $modelRelation => $relationData )
         {
-            $this->addFileUseUrl( $through );
-            $through = explode( '\\', $through );
-            $through = end( $through );
+            if( is_array( $relationData ) ) dd( $relationData );
+            $table = $this->getRelationTableName( $this->entityName, $modelRelation );
+            $classname = 'Create' . Str::studly( $table ) . 'Table';
+            $entity1 = $relationData->foreingPivotKey ??
+                $this->entityData->model->primary_key ?? Str::snake( Str::singular( $this->entityName ) ) . '_id';
+            $entity2 = $relationData->relatedPivotKey ?? Str::snake( Str::singular( $modelRelation ) ) . '_id';
+            $objectData = new stdClass();
+            $objectData->nameSingular = $table;
+            $objectData->namePlural = $table;
+            $objectData->files = [ 'migration' ];
+            $objectData->attributes = [
+                $entity1 => [
+                    'type' => 'bigInteger',
+                    'nullable' => false,
+                ],
+                $entity2 => [
+                    'type' => 'bigInteger',
+                    'nullable' => false,
+                ]
+            ];
+            $objectData->migration = [
+                'table' => $table,
+                'classname' => $classname,
+                'rewrite' => $this->fileCanBeRewrited()
+            ];
+            $generator = new MigrationGenerator( Str::studly( $table ), json_decode( json_encode( $objectData ) ) );
+            $generator->createFile();
         }
-        $firstKey = $relationData->firstKey ?? Str::snake( $this->entityName ) . '_id';
-        $secondKey = $relationData->secondKey ?? Str::snake( $modelRelation ) . '_id';
-        $localKey = $relationData->localKey ?? 'id';
-        $secondLocalKey = $relationData->secondLocalKey ?? 'id';
+    }
+
+    public function getMorphToConstraintData( string $modelRelation, object $relationData ) : array
+    {
+        $column = Str::snake( $modelRelation );
         return [
-            'relation_name' => $relationData->relationName ?? Str::plural( Str::camel( $modelRelation ) ),
-            'relation' => 'HasManyThrough',
-            'relation_method' => 'hasManyThrough',
-            'relation_content' => "$modelRelation::class, $through::class, '$firstKey', '$secondKey', '$localKey', '$secondLocalKey'",
+            'type' => 'morphs',
+            'column' => $column,
+            'extra' => '',
         ];
     }
 
-    public function getMorphToRelationData( string $modelRelation, object $relationData )
+    public function getRelationTableName( $entity1, $entity2 )
     {
-        $relationContent = "";
-        if( property_exists( $relationData, 'type' ) || property_exists( $relationData, 'id' ) || property_exists( $relationData, 'owner' ) )
-        {
-            $name = '__FUNCTION__';
-            $type = $relationData->type ?? $modelRelation . '_type';
-            $id = $relationData->id ?? $modelRelation . '_id';
-            $owner = property_exists( $relationData, 'owner' )? ", '" . $relationData->owner . "'" : null;
-            $relationContent = "$name, '$type', '$id'" . $owner;
-        }
-
-        return [
-            'relation_name' => $modelRelation,
-            'relation' => 'MorphTo',
-            'relation_method' => 'morphTo',
-            'relation_content' => $relationContent,
-        ];
-    }
-
-    public function getMorphManyRelationData( string $modelRelation, object $relationData ) : array
-    {
-        $name = $relationData->name ?? Str::camel( $modelRelation );
-        $relationContent = "$modelRelation::class, '$name'";
-        if( property_exists( $relationData, 'type' ) || property_exists( $relationData, 'id' ) || property_exists( $relationData, 'localKey' ) )
-        {
-            $type = $relationData->type ?? $modelRelation . '_type';
-            $id = $relationData->id ?? $modelRelation . '_id';
-            $localKey = property_exists( $relationData, 'localKey' )? ", '" . $relationData->localKey . "'" : null;
-            $relationContent .= ", '$type', '$id'" . $localKey;
-        }
-        return [
-            'relation_name' => $relationData->relationName ?? Str::camel( Str::plural( $modelRelation ) ),
-            'relation' => 'MorphMany',
-            'relation_method' => 'morphMany',
-            'relation_content' => $relationContent,
-        ];
-    }
-
-    public function getMorphOneRelationData( string $modelRelation, object $relationData ) : array
-    {
-        $name = $relationData->name ?? Str::sanke( $modelRelation );
-        $relationContent = "$modelRelation::class, '$name'";
-        if( property_exists( $relationData, 'type' ) || property_exists( $relationData, 'id' ) || property_exists( $relationData, 'localKey' ) )
-        {
-            $type = $relationData->type ?? $modelRelation . '_type';
-            $id = $relationData->id ?? $modelRelation . '_id';
-            $localKey = property_exists( $relationData, 'localKey' )? ", '" . $relationData->localKey . "'" : null;
-            $relationContent .= ", '$type', '$id'" . $localKey;
-        }
-        return [
-            'relation_name' => $relationData->relationName ?? Str::camel( $modelRelation ),
-            'relation' => 'MorphOne',
-            'relation_method' => 'morphOne',
-            'relation_content' => $relationContent,
-        ];
+        $entities = [ $entity1, $entity2 ];
+        sort( $entities );
+        return Str::singular( Str::snake( $entities[ 0 ] ) ) . "_" . Str::singular( Str::snake( $entities[ 1 ] ) );
     }
 
     public function setFileName() : void
@@ -279,6 +233,7 @@ class MigrationGenerator extends FileGenerator
         $this->fileContent = str_replace( '{{ traits }}', $this->fileTraits, $this->fileContent );
         $this->fileContent = str_replace( '{{ table }}', $this->table, $this->fileContent );
         $this->fileContent = str_replace( '{{ columns }}', $this->columns, $this->fileContent );
-        $this->fileContent = str_replace( '{{ relations }}', $this->relations, $this->fileContent );
+        $this->fileContent = str_replace( '{{ constraints }}', $this->constraints, $this->fileContent );
+        $this->generateManyToManyMigrations();
     }
 }

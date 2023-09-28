@@ -187,10 +187,52 @@ abstract class FileGenerator implements FileGeneratorInterface
 
     public function fileShouldBeCreated() : bool
     {
-        $fileNotExist = !File::exists( $this->fileUrl );
-        $fileCantBeRewrited = ( $this->fileData && property_exists( $this->fileData, 'rewrite' ) && $this->fileData->rewrite === false ) || ( !$this->fileData && $this->configurationOptions[ $this->fileType ][ 'rewrite' ] === false );
-        $entityCantBeRewrited = ( $this->entityData && property_exists( $this->entityData, 'rewrite' ) && $this->entityData->rewrite === false ) || ( $this->entityData && $this->configurationOptions[ 'rewrite' ] === false );
-        return $fileNotExist || !( $fileCantBeRewrited || $entityCantBeRewrited );
+        $fileCantBeRewrited = $this->fileCantBeRewrited();
+        $entityCantBeRewrited = $this->entityCantBeRewrited();
+        $fileCanBeRewrited = !( $fileCantBeRewrited || $entityCantBeRewrited );
+        $fileNotExist = $this->fileNotExists( $fileCanBeRewrited );
+        $shouldBeCreated = $fileNotExist || $fileCanBeRewrited;
+        return $shouldBeCreated;
+    }
+
+    public function fileCanBeRewrited() : bool
+    {
+        return !( $this->entityCantBeRewrited() || $this->fileCantBeRewrited() );
+    }
+
+    public function entityCantBeRewrited() : bool
+    {
+        return ( $this->entityData && property_exists( $this->entityData, 'rewrite' ) && $this->entityData->rewrite === false ) || ( $this->entityData && $this->configurationOptions[ 'rewrite' ] === false );
+    }
+
+    public function fileCantBeRewrited() : bool
+    {
+        return ( $this->fileData && property_exists( $this->fileData, 'rewrite' ) && $this->fileData->rewrite === false ) || ( !$this->fileData && $this->configurationOptions[ $this->fileType ][ 'rewrite' ] === false );
+    }
+
+    public function fileNotExists( bool $fileCanBeRewrited ) : bool
+    {
+        if( $this->fileType != 'migration' ) return !File::exists( $this->fileUrl );
+
+        $fileUrl = explode( '/', $this->fileUrl );
+        $fileUrl = implode( '/', array_slice( $fileUrl, 0, count( $fileUrl ) - 1 ) );
+        $migrationNameWithoutTimestamp = explode( '_', $this->fileName, 5 )[4];
+        $migrationFiles = File::glob( database_path( 'migrations/*_*.php' ) );
+        foreach( $migrationFiles as $migrationFile )
+        {
+            $migrationFileName = Str::afterLast( Str::afterLast( $migrationFile, '\\' ), '/' );
+
+            if( Str::contains( explode( '_', $migrationFileName, 5 )[4], $migrationNameWithoutTimestamp ) )
+            {
+                if( $fileCanBeRewrited )
+                {
+                    $this->fileName = $migrationFileName;
+                    $this->fileUrl = $fileUrl . '/' . $this->fileName;
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     public static function getClassNameFromUrl( $classUrl ) : string
