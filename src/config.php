@@ -18,20 +18,30 @@ return [
         "use" => [],
         "traits" => [],
         "interfaces" => [],
-        "extends" => 'Illuminate\Database\Eloquent\Model',
+        "extends" => 'Illuminate\\Database\\Eloquent\\Model',
         "file_path" => "app/Models",
         "namespace" => "App\\Models",
         "rewrite" => true
     ],
     "controller" => [
-        "use" => [ 'App\\Http\\Controllers\\Controller' ],
+        "use" => [],
         "traits" => [],
         "interfaces" => [],
-        "extends" => "Controller",
+        "extends" => 'App\\Http\\Controllers\\Controller',
         "file_path" => "app/Http/Controllers",
         "namespace" => "App\\Http\\Controllers",
         "methods" => [ "list", "fetch", "store", "update", "delete" ],
         "response" => "\\Illuminate\\Http\\JsonResponse",
+        "rewrite" => true
+    ],
+    "request" => [
+        "use" => [],
+        "traits" => [],
+        "interfaces" => [],
+        "extends" => 'Illuminate\\Foundation\\Http\\FormRequest',
+        "file_path" => "app/Http/Requests",
+        "namespace" => "App\\Http\\Requests",
+        "methods" => [ "list", "fetch", "store", "update", "delete" ],
         "rewrite" => true
     ],
     "repository" => [
@@ -45,10 +55,10 @@ return [
         "rewrite" => true
     ],
     "migration" => [
-        "use" => [ 'Illuminate\Database\Schema\Blueprint', 'Illuminate\Support\Facades\Schema' ],
+        "use" => [ 'Illuminate\\Database\\Schema\\Blueprint', 'Illuminate\\Support\\Facades\\Schema' ],
         "traits" => [],
         "interfaces" => [],
-        "extends" => "Illuminate\Database\Migrations\Migration",
+        "extends" => "Illuminate\\Database\\Migrations\\Migration",
         "file_path" => "database/migrations",
         "namespace" => null,
         "timestamps" => true,

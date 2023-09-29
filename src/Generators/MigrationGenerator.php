@@ -168,7 +168,6 @@ class MigrationGenerator extends FileGenerator
     {
         foreach( $this->manyToMany as $modelRelation => $relationData )
         {
-            if( is_array( $relationData ) ) dd( $relationData );
             $table = $this->getRelationTableName( $this->entityName, $modelRelation );
             $classname = 'Create' . Str::studly( $table ) . 'Table';
             $entity1 = $relationData->foreingPivotKey ??

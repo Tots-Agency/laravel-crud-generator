@@ -2,6 +2,8 @@
 
 namespace TOTS\LaravelCrudGenerator\Generators;
 
+use stdClass;
+use Illuminate\Support\Str;
 use TOTS\LaravelCrudGenerator\FileGenerator;
 
 class ControllerGenerator extends FileGenerator
@@ -69,7 +71,7 @@ class ControllerGenerator extends FileGenerator
                 $methodArguments = method_exists( $this, $methodToGenerateArguments )? $this->$methodToGenerateArguments() : null;
             }else{
                 $methodContent = $this->generateDefaultMethodContent();
-                $methodArguments = "Request \$request";
+                $methodArguments = $this->generateDefaultMethodArguments( $method ); //"Request \$request";
                 if( !in_array( "Illuminate\\Http\\Request", $this->fileUseUrls ) ) $this->fileUseUrls[] = "Illuminate\\Http\\Request";
             }
             $methodBaseTemplate = parent::generateMethodTemplate( $method, $methodArguments, $this->methodResponse );
@@ -79,12 +81,33 @@ class ControllerGenerator extends FileGenerator
 
     public function getMethodRequestFile( string $method ) : string
     {
-        return ucfirst( $method ) . 'Request';
+        return Str::studly( $method ) . 'Request';
     }
 
     public function addRequestFileToUseUrls( string $requestFile ) : void
     {
-        $this->fileUseUrls[] = "App\\Http\\Requests\\{$this->entityName}\\{$requestFile}";
+        $this->fileUseUrls[] = $requestFile;
+    }
+
+    public function generateRequestFile( string $requestFile ) : string
+    {
+        $requestFile = Str::studly( $requestFile );
+        $objectData = new stdClass();
+        $objectData->files = [ 'request' ];
+        $objectData->attributes = $this->entityData && property_exists( $this->entityData, 'attributes' )? $this->entityData->attributes : [];
+        $requestDataExists = $this->entityData && property_exists( $this->entityData, 'request' );
+        $objectData->request = $requestDataExists? $this->entityData->request : [];
+        $objectData->request[ 'filePath' ] = $requestDataExists && property_exists( $this->entityData->request, 'filePath' )?
+            $this->entityData->request->filePath:
+            $this->configurationOptions[ 'request' ][ 'file_path' ];
+        $objectData->request[ 'namespace' ] = $requestDataExists && property_exists( $this->entityData->request, 'namespace' )?
+            $this->entityData->request->namespace:
+            $this->configurationOptions[ 'request' ][ 'namespace' ];
+        $objectData->request[ 'filePath' ] .= '/' . Str::studly( $this->entityName );
+        $objectData->request[ 'namespace' ] .= '\\' . Str::studly( $this->entityName );
+        $generator = new RequestGenerator( $requestFile, json_decode( json_encode( $objectData ) ) );
+        $generator->createFile();
+        return $objectData->request[ 'namespace' ] . '\\' . $this->getMethodRequestFile( $requestFile );
     }
 
     public function generateDefaultMethodContent() : string
@@ -93,6 +116,13 @@ class ControllerGenerator extends FileGenerator
         return response()->json( [
             'data' => []
         ] );";
+    }
+
+    public function generateDefaultMethodArguments( $method ) : string
+    {
+        $requestFile = $this->generateRequestFile( $method );
+        $this->addRequestFileToUseUrls( $requestFile );
+        return Str::afterLast( $requestFile, '\\' ) . " \$request";
     }
 
     public function generateStoreMethodContent() : string
@@ -105,9 +135,9 @@ class ControllerGenerator extends FileGenerator
 
     public function generateStoreMethodArguments() : string
     {
-        $requestFile = $this->getMethodRequestFile( 'store' );
+        $requestFile = $this->generateRequestFile( 'store' );
         $this->addRequestFileToUseUrls( $requestFile );
-        return $requestFile . " \$request";
+        return Str::afterLast( $requestFile, '\\' ) . " \$request";
     }
 
     public function generateUpdateMethodContent() : string
@@ -120,9 +150,9 @@ class ControllerGenerator extends FileGenerator
 
     public function generateUpdateMethodArguments() : string
     {
-        $requestFile = $this->getMethodRequestFile( 'update' );
+        $requestFile = $this->generateRequestFile( 'update' );
         $this->addRequestFileToUseUrls( $requestFile );
-        return $requestFile . " \$request, int {$this->entityVar}Id";
+        return Str::afterLast( $requestFile, '\\' ) . " \$request, int {$this->entityVar}Id";
     }
 
     public function generateDeleteMethodContent() : string
@@ -171,8 +201,8 @@ class ControllerGenerator extends FileGenerator
 
     public function generateListMethodArguments() : string
     {
-        $requestFile = $this->getMethodRequestFile( 'list' );
+        $requestFile = $this->generateRequestFile( 'list' );
         $this->addRequestFileToUseUrls( $requestFile );
-        return $requestFile . " \$request";
+        return Str::afterLast( $requestFile, '\\' ) . " \$request";
     }
 }
