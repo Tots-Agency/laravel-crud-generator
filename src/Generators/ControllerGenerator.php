@@ -24,6 +24,7 @@ class ControllerGenerator extends FileGenerator
         $this->setEntityResource();
         $this->setEntityVar();
         $this->setMethods();
+        $this->addResourceFilesToUseUrls();
     }
 
     public function setControllerMethods() : void
@@ -87,6 +88,14 @@ class ControllerGenerator extends FileGenerator
     public function addRequestFileToUseUrls( string $requestFile ) : void
     {
         $this->fileUseUrls[] = $requestFile;
+    }
+
+    public function addResourceFilesToUseUrls() : void
+    {
+        $entityName = Str::studly( $this->entityName );
+        $resourceNamespace = $this->entityData && property_exists( $this->entityData, 'resource' ) && property_exists( $this->entityData->resource, 'namespace' )? $this->entityData->resource->namespace : $this->configurationOptions[ 'resource' ][ 'namespace' ];
+        $this->fileUseUrls[] = $resourceNamespace . "\\{$entityName}\\{$entityName}Resource";
+        $this->fileUseUrls[] = $resourceNamespace . "\\{$entityName}\\{$entityName}Collection";
     }
 
     public function generateRequestFile( string $requestFile ) : string

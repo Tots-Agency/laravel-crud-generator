@@ -171,6 +171,18 @@ abstract class FileGenerator implements FileGeneratorInterface
         {
             $this->generateFileContent();
             File::put( $this->fileUrl, $this->fileContent );
+            if( $this->fileType === 'resource' )
+            {
+                $this->fileType = 'collection';
+                $this->classname = str_replace( 'Resource', 'Collection', $this->classname );
+                $fileName = Str::afterLast( $this->fileUrl, '/' );
+                $newFileName = str_replace( 'Resource', 'Collection', $fileName );
+                $this->fileUrl = str_replace( $fileName, $newFileName, $this->fileUrl );
+                $this->generateFileContent();
+                $this->fileContent = str_replace( 'JsonResource', 'ResourceCollection', $this->fileContent );
+                $this->fileContent = str_replace( 'resource into', 'resource collection into', $this->fileContent );
+                File::put( $this->fileUrl, $this->fileContent );
+            }
             return true;
         }
         return false;

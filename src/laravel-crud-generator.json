@@ -4,7 +4,7 @@
             "nameSingular": "product",
             "namePlural": "products",
             "rewrite": true,
-            "files": [ "routes", "model", "controller", "migration", "factory", "repository", "test" ],
+            "files": [ "routes", "model", "controller", "migration", "resource", "factory", "repository", "test" ],
             "attributes": {
                 "name": {
                     "type": "string",
