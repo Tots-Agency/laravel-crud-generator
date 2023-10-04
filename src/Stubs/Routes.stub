@@ -5,9 +5,5 @@ use {{ controller_url }};
 
 Route::group( [ 'prefix' => '{{ entity_plural }}', 'middleware' => [ 'auth:api' ] ], function()
 {
-    Route::get( '/', [ {{ controller }}::class, 'list' ] )->name( '{{ entity }}.list' )->middleware( [ 'permission:{{ entity }}.list' ] );
-    Route::post( '/', [ {{ controller }}::class, 'store' ] )->name( '{{ entity }}.store' )->middleware( [ 'permission:{{ entity }}.store' ] );
-    Route::get( '/{id}', [ {{ controller }}::class, 'show' ] )->name( '{{ entity }}.show' )->middleware( [ 'permission:{{ entity }}.show' ] );
-    Route::put( '/{id}', [ {{ controller }}::class, 'update' ] )->name( '{{ entity }}.update' )->middleware( [ 'permission:{{ entity }}.update' ] );
-    Route::delete( '/{id}', [ {{ controller }}::class, 'delete' ] )->name( '{{ entity }}.delete' )->middleware( [ 'permission:{{ entity }}.delete' ] );
+    {{ routes }}
 });

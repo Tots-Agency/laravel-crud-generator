@@ -9,9 +9,10 @@ use TOTS\LaravelCrudGenerator\FileGenerator;
 class ControllerGenerator extends FileGenerator
 {
     protected array $controllerMethods;
-    protected string $methodResponse;
     protected array $methodsContent;
-    protected string $entityRepository;
+    protected string $defaultMethodResponse;
+    protected string $entityService;
+    protected string $entityServiceVar;
     protected string $entityResource;
     protected string $entityCollection;
     protected string $entityVar;
@@ -19,8 +20,8 @@ class ControllerGenerator extends FileGenerator
     public function setFileContent() : void
     {
         $this->setControllerMethods();
-        $this->setMethodsResponse();
-        $this->setEntityRepository();
+        $this->setDefaultMethodResponse();
+        $this->setEntityService();
         $this->setEntityResource();
         $this->setEntityVar();
         $this->setMethods();
@@ -32,9 +33,9 @@ class ControllerGenerator extends FileGenerator
         $this->controllerMethods = $this->fileData && property_exists( $this->fileData, 'methods' )? $this->fileData->methods : $this->configurationOptions[ $this->fileType ][ 'methods' ];
     }
 
-    public function setMethodsResponse() : void
+    public function setDefaultMethodResponse() : void
     {
-        $this->methodResponse = $this->fileData && property_exists( $this->fileData, 'response' )? $this->fileData->response : $this->configurationOptions[ $this->fileType ][ 'response' ];
+        $this->defaultMethodResponse = $this->fileData && property_exists( $this->fileData, 'response' )? $this->fileData->response : $this->configurationOptions[ $this->fileType ][ 'response' ];
     }
 
     public function generateFileContent() : void
@@ -48,10 +49,11 @@ class ControllerGenerator extends FileGenerator
         $this->entityVar = "\$" . strtolower( $this->entityName );
     }
 
-    public function setEntityRepository() : void
+    public function setEntityService() : void
     {
-        $this->entityRepository = $this->entityData->repositoryClassname;
-        $this->fileUseUrls[] = $this->entityData->repositoryUrl;
+        $this->entityService = $this->entityData->serviceClassname;
+        $this->entityServiceVar = Str::camel( $this->entityService );
+        $this->fileUseUrls[] = $this->entityData->serviceUrl;
     }
 
     public function setEntityResource() : void
@@ -62,6 +64,10 @@ class ControllerGenerator extends FileGenerator
 
     public function setMethods() : void
     {
+        $constructMethodArguments = $this->generateConstructMethodArguments();
+        $methodBaseTemplate = parent::generateMethodTemplate( '__construct', $constructMethodArguments, null );
+        $this->methodsContent[ '__construct' ] = str_replace( '{{ method_content }}', '', $methodBaseTemplate );
+
         foreach( $this->controllerMethods as $method )
         {
             if( self::isCannonicalMethod( $method ) )
@@ -70,15 +76,34 @@ class ControllerGenerator extends FileGenerator
                 $methodContent = $this->$methodToGenerateContent();
                 $methodToGenerateArguments = 'generate' . $method . 'MethodArguments';
                 $methodArguments = method_exists( $this, $methodToGenerateArguments )? $this->$methodToGenerateArguments() : null;
+                // $methodResponse = $this->generateMethodResponse( $method );
             }else{
                 $methodContent = $this->generateDefaultMethodContent();
                 $methodArguments = $this->generateDefaultMethodArguments( $method ); //"Request \$request";
+                // $methodResponse = $this->generateMethodResponse();
                 if( !in_array( "Illuminate\\Http\\Request", $this->fileUseUrls ) ) $this->fileUseUrls[] = "Illuminate\\Http\\Request";
             }
-            $methodBaseTemplate = parent::generateMethodTemplate( $method, $methodArguments, $this->methodResponse );
+            $methodBaseTemplate = parent::generateMethodTemplate( $method, $methodArguments, $this->defaultMethodResponse );
             $this->methodsContent[ $method ] = str_replace( '{{ method_content }}', $methodContent, $methodBaseTemplate );
         }
     }
+
+    public function generateConstructMethodArguments() : string
+    {
+        return "private {$this->entityService} \${$this->entityServiceVar}";
+    }
+
+    // public function generateMethodResponse( $method = null ) : string
+    // {
+    //     $methodToGenerateResponse = 'generate' . $method . 'MethodResponse';
+    //     return $method && method_exists( $this, $methodToGenerateResponse )? $this->$methodToGenerateResponse() : $this->defaultMethodResponse;
+    // }
+
+    // public function generateListMethodResponse()
+    // {
+    //     $resourceCollectionNamespace = $this->getResourceCollectionNamespace();
+    //     return Str::afterLast( $resourceCollectionNamespace, '\\' );
+    // }
 
     public function getMethodRequestFile( string $method ) : string
     {
@@ -92,10 +117,25 @@ class ControllerGenerator extends FileGenerator
 
     public function addResourceFilesToUseUrls() : void
     {
+        parent::addFileUseUrl( $this->getResourceResponseNamespace() );
+        parent::addFileUseUrl( $this->getResourceCollectionNamespace() );
+    }
+
+    public function getResourceNamespace() : string
+    {
+        return $this->entityData && property_exists( $this->entityData, 'resource' ) && property_exists( $this->entityData->resource, 'namespace' )? $this->entityData->resource->namespace : $this->configurationOptions[ 'resource' ][ 'namespace' ];
+    }
+
+    public function getResourceResponseNamespace() : string
+    {
         $entityName = Str::studly( $this->entityName );
-        $resourceNamespace = $this->entityData && property_exists( $this->entityData, 'resource' ) && property_exists( $this->entityData->resource, 'namespace' )? $this->entityData->resource->namespace : $this->configurationOptions[ 'resource' ][ 'namespace' ];
-        $this->fileUseUrls[] = $resourceNamespace . "\\{$entityName}\\{$entityName}Resource";
-        $this->fileUseUrls[] = $resourceNamespace . "\\{$entityName}\\{$entityName}Collection";
+        return $this->getResourceNamespace() . "\\{$entityName}\\{$this->entityResource}";
+    }
+
+    public function getResourceCollectionNamespace() : string
+    {
+        $entityName = Str::studly( $this->entityName );
+        return $this->getResourceNamespace() . "\\{$entityName}\\{$this->entityCollection}";
     }
 
     public function generateRequestFile( string $requestFile ) : string
@@ -136,7 +176,7 @@ class ControllerGenerator extends FileGenerator
 
     public function generateStoreMethodContent() : string
     {
-        return "{$this->entityVar} = {$this->entityRepository}::store( \$request->validated() );
+        return "{$this->entityVar} = \$this->{$this->entityServiceVar}->store( \$request->validated() );
         return response()->json( [
             'data' => {$this->entityResource}::make( {$this->entityVar} ),
         ], 201 );";
@@ -151,7 +191,7 @@ class ControllerGenerator extends FileGenerator
 
     public function generateUpdateMethodContent() : string
     {
-        return "{$this->entityVar} = {$this->entityRepository}::update( \$request->validated(), {$this->entityVar}Id );
+        return "{$this->entityVar} = \$this->{$this->entityServiceVar}->update( \$request->validated(), {$this->entityVar}Id );
         return response()->json( [
             'data' => {$this->entityResource}::make( {$this->entityVar} ),
         ] );";
@@ -166,7 +206,7 @@ class ControllerGenerator extends FileGenerator
 
     public function generateDeleteMethodContent() : string
     {
-        return "{$this->entityVar} = {$this->entityRepository}::delete( {$this->entityVar}Id );
+        return "{$this->entityVar} = \$this->{$this->entityServiceVar}->delete( {$this->entityVar}Id );
         return {$this->entityVar} ?
 
         response()->json( [
@@ -183,9 +223,9 @@ class ControllerGenerator extends FileGenerator
         return "int {$this->entityVar}Id";
     }
 
-    public function generateFetchMethodContent() : string
+    public function generateShowMethodContent() : string
     {
-        return "{$this->entityVar} = {$this->entityRepository}::fetch( {$this->entityVar}Id );
+        return "{$this->entityVar} = \$this->{$this->entityServiceVar}->fetch( {$this->entityVar}Id );
         return {$this->entityVar} ?
 
         response()->json( [
@@ -197,15 +237,19 @@ class ControllerGenerator extends FileGenerator
         ], 404 );";
     }
 
-    public function generateFetchMethodArguments() : string
+    public function generateShowMethodArguments() : string
     {
         return "int {$this->entityVar}Id";
     }
 
     public function generateListMethodContent() : string
     {
-        return "{$this->entityVar} = {$this->entityRepository}::list( \$request->validated() );
-        return new {$this->entityCollection}( {$this->entityVar} );";
+
+        $listVar = Str::plural( $this->entityVar );
+        return "{$listVar} = \$this->{$this->entityServiceVar}->list( \$request->validated() );
+        return response()->json( [
+            'data' => new {$this->entityCollection}( {$listVar} ),
+        ] );";
     }
 
     public function generateListMethodArguments() : string

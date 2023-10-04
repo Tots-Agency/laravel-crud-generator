@@ -292,7 +292,7 @@ abstract class FileGenerator implements FileGeneratorInterface
         $methodData = [
             'method_name' => $methodName,
             'method_arguments' => $methodArguments,
-            'method_return_type' => $methodReturnType,
+            'method_return_type' => $methodReturnType? ' : ' . $methodReturnType : '',
             'method_static' => $methodIsStatic? ' static' : '',
             'method_scope' => $methodScope
         ];

@@ -28,7 +28,7 @@ class LaravelCrudGenerator
             $this->command->line( "<options=bold;fg=bright-yellow;>⚡</><options=bold;fg=bright-magenta;> CRUD generation for {$entityName}</>" );
             foreach( $entityData->files as $file )
             {
-                if( in_array( $file, [ 'routes', 'model', 'controller', 'repository', 'migration', 'resource' ] ) )
+                if( in_array( $file, [ 'routes', 'model', 'controller', 'service', 'migration', 'resource' ] ) )
                     $this->generateFile( $file, $entityName, $entityData );
             }
             $this->command->line( "<options=bold;fg=bright-white;>└─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=bright-cyan;> {$entityName} has been generated successfully</>" );
@@ -52,7 +52,7 @@ class LaravelCrudGenerator
         if( !$entityData ) $entityData = new \stdClass();
         $entityData->files = $entityData && property_exists( $entityData, 'files' )? $entityData->files : $this->configurationOptions[ 'files' ];
 
-        foreach( [ 'model', 'controller', 'repository' ] as $globalEntity )
+        foreach( [ 'model', 'controller', 'service' ] as $globalEntity )
             $entityData = $this->setGlobalEntity( $globalEntity, $entityName, $entityData );
         return $entityData;
     }

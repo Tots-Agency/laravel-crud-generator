@@ -4,25 +4,25 @@ namespace TOTS\LaravelCrudGenerator\Generators;
 
 use TOTS\LaravelCrudGenerator\FileGenerator;
 
-class RepositoryGenerator extends FileGenerator
+class ServiceGenerator extends FileGenerator
 {
-    protected array $repositoryMethods;
+    protected array $serviceMethods;
     protected array $methodsContent;
     protected string $entityModel;
     protected string $entityVar;
 
     public function setFileContent() : void
     {
-        $this->setRepositoryMethods();
+        $this->setServiceMethods();
         $this->setEntityVar();
         $this->setEntityModel();
         $this->setMethods();
     }
 
-    public function setRepositoryMethods() : void
+    public function setServiceMethods() : void
     {
-        $this->repositoryMethods = $this->fileData && property_exists( $this->fileData, 'methods' )? $this->fileData->methods : $this->configurationOptions[ $this->fileType ][ 'methods' ];
-        if( !in_array( 'fetch', $this->repositoryMethods ) && ( in_array( 'update', $this->repositoryMethods ) || in_array( 'delete', $this->repositoryMethods ) ) ) $this->repositoryMethods[] = 'fetch';
+        $this->serviceMethods = $this->fileData && property_exists( $this->fileData, 'methods' )? $this->fileData->methods : $this->configurationOptions[ $this->fileType ][ 'methods' ];
+        if( !in_array( 'fetch', $this->serviceMethods ) && ( in_array( 'update', $this->serviceMethods ) || in_array( 'delete', $this->serviceMethods ) ) ) $this->serviceMethods[] = 'fetch';
     }
 
     public function generateFileContent() : void
@@ -44,7 +44,7 @@ class RepositoryGenerator extends FileGenerator
 
     public function setMethods() : void
     {
-        foreach( $this->repositoryMethods as $method )
+        foreach( $this->serviceMethods as $method )
         {
             $methodResponse = $this->entityModel;
             if( self::isCannonicalMethod( $method ) )
@@ -60,7 +60,7 @@ class RepositoryGenerator extends FileGenerator
                 $methodContent = $this->generateDefaultMethodContent();
                 $methodArguments = "Request \$request";
             }
-            $methodBaseTemplate = parent::generateMethodTemplate( $method, $methodArguments, $methodResponse, true );
+            $methodBaseTemplate = parent::generateMethodTemplate( $method, $methodArguments, $methodResponse, false );
             $this->methodsContent[ $method ] = str_replace( '{{ method_content }}', $methodContent, $methodBaseTemplate );
         }
     }
@@ -82,7 +82,7 @@ class RepositoryGenerator extends FileGenerator
 
     public function generateUpdateMethodContent() : string
     {
-        return "{$this->entityVar} = self::fetch( {$this->entityVar}Id );
+        return "{$this->entityVar} = \$this->fetch( {$this->entityVar}Id );
         {$this->entityVar}->update( {$this->entityVar}Data );
         return {$this->entityVar};";
     }
@@ -94,7 +94,7 @@ class RepositoryGenerator extends FileGenerator
 
     public function generateDeleteMethodContent() : string
     {
-        return "{$this->entityVar} = self::fetch( {$this->entityVar}Id );
+        return "{$this->entityVar} = \$this->fetch( {$this->entityVar}Id );
         {$this->entityVar}->delete();
         return {$this->entityVar};";
     }

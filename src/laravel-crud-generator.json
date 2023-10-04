@@ -4,7 +4,7 @@
             "nameSingular": "product",
             "namePlural": "products",
             "rewrite": true,
-            "files": [ "routes", "model", "controller", "migration", "resource", "factory", "repository", "test" ],
+            "files": [ "routes", "model", "controller", "migration", "resource", "factory", "service", "test" ],
             "attributes": {
                 "name": {
                     "type": "string",
@@ -108,10 +108,10 @@
                 "filePath": "app/Http/Controllers/Test",
                 "methods": [ "list", "store", "delete", "test1", "test2" ]
             },
-            "repository": {
+            "service": {
                 "use": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
-                "extends": "MainRepository",
-                "filePath": "app/Repositories/Test",
+                "extends": "MainService",
+                "filePath": "app/Services/Test",
                 "methods": [ "list", "store", "update", "delete" ]
             },
             "migration": {
