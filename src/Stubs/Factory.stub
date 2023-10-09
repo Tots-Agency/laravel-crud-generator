@@ -1,20 +1,25 @@
-<?php
-
-namespace Database\Factories;
-
-use Illuminate\Database\Eloquent\Factories\Factory;
-
-class {{entity}}Factory extends Factory
-{
     /**
      * Define the model's default state.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function definition()
+    public function definition() : array
     {
         return [
-            // TO DO
+            {{ attributes }}
         ];
     }
-}
+
+     /**
+     * Configure the model factory.
+     */
+    public function configure(): static
+    {
+        return $this->afterMaking( function( {{ model }} ${{ var_name }} )
+        {
+            // TO DO
+        })->afterCreating( function( {{ model }} ${{ var_name }} )
+        {
+            // TO DO
+        });
+    }

@@ -4,7 +4,7 @@
             "nameSingular": "product",
             "namePlural": "products",
             "rewrite": true,
-            "files": [ "routes", "model", "controller", "migration", "resource", "factory", "service", "test" ],
+            "files": [ "routes", "model", "controller", "migration", "resource", "factory", "service", "test", "mock" ],
             "attributes": {
                 "name": {
                     "type": "string",
@@ -120,8 +120,11 @@
                 "filePath": "database/migrations"
             },
             "factory": {
-                "filePath": "database/migrations"
-
+                "filePath": "database/factories/product"
+            },
+            "mock": {
+                "filePath": "database/seeders/mocks/product",
+                "count": "100"
             },
             "tests": {
 

@@ -28,7 +28,7 @@ class LaravelCrudGenerator
             $this->command->line( "<options=bold;fg=bright-yellow;>⚡</><options=bold;fg=bright-magenta;> CRUD generation for {$entityName}</>" );
             foreach( $entityData->files as $file )
             {
-                if( in_array( $file, [ 'routes', 'model', 'controller', 'service', 'migration', 'resource' ] ) )
+                if( in_array( $file, [ 'routes', 'model', 'controller', 'service', 'migration', 'resource', 'factory', 'mock' ] ) )
                     $this->generateFile( $file, $entityName, $entityData );
             }
             $this->command->line( "<options=bold;fg=bright-white;>└─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=bright-cyan;> {$entityName} has been generated successfully</>" );

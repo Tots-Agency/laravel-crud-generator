@@ -3,7 +3,7 @@
 return [
     "default_file_path" => env( "LARAVEL_CRUD_GENERATOR_FILE_PATH" ) ?? 'laravel-crud-generator.json',
     "rewrite" => env( "LARAVEL_CRUD_GENERATOR_RERWRITE" ) ?? true,
-    "files" => [ "routes", "model", "controller", "migration", "resource", "factory", "service", "test" ],
+    "files" => [ "routes", "model", "controller", "migration", "resource", "factory", "service", "test", "mock" ],
     "relations" => [],
     "routes" => [
         "use" => [],
@@ -16,7 +16,7 @@ return [
     ],
     "model" => [
         "use" => [],
-        "traits" => [],
+        "traits" => [ 'Illuminate\\Database\\Eloquent\\Factories\\HasFactory' ],
         "interfaces" => [],
         "extends" => 'Illuminate\\Database\\Eloquent\\Model',
         "file_path" => "app/Models",
@@ -73,6 +73,25 @@ return [
         "timestamps" => true,
         "softDeletes" => true,
         "id" => true,
+        "rewrite" => true
+    ],
+    "factory" => [
+        "use" => [ 'Illuminate\Support\Str' ],
+        "traits" => [],
+        "interfaces" => [],
+        "extends" => 'Illuminate\\Database\\Eloquent\\Factories\\Factory',
+        "file_path" => "database/factories",
+        "namespace" => "Database\\Factories",
+        "rewrite" => true
+    ],
+    "mock" => [
+        "use" => [],
+        "traits" => [],
+        "interfaces" => [],
+        "extends" => 'Illuminate\\Database\\Seeder',
+        "file_path" => "database/seeders/mocks",
+        "namespace" => "Database\\Seeders\\Mocks",
+        "count" => 50,
         "rewrite" => true
     ],
 ];
