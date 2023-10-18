@@ -8,6 +8,6 @@ TOTS Laravel CRUD Generator is a library to automate the creation of files for L
 
 1. Add "TOTS\LaravelCrudGenerator\LaravelCrudGeneratorServiceProvider::class," as a package service provider in your config/app.php file
 2. Installation: php artisan crud:install
-3. Update json file called laravel-crud-generator
+3. Update json file called "laravel-crud-generator.json"
 4. Generate files: php artisan crud:generate
 ---
