@@ -1,10 +1,6 @@
 <?php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
-
-class Create{{entity}}Table extends Migration
+{{ namespace }}{{ use }}class {{ classname }}{{ extends }}
 {
     /**
      * Run the migrations.
@@ -13,11 +9,7 @@ class Create{{entity}}Table extends Migration
      */
     public function up()
     {
-        Schema::create('{{entity}}', function (Blueprint $table) {
-            $table->id();
-            // TO DO
-            $table->timestamps();
-        });
+        Schema::create( '{{ table }}', function (Blueprint $table) {{{ columns }}{{ constraints }}\t\t});
     }
 
     /**
@@ -27,6 +19,6 @@ class Create{{entity}}Table extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('{{entity}}');
+        Schema::dropIfExists( '{{ table }}' );
     }
 }

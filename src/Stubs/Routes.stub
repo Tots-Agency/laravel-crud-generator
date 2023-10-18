@@ -1,6 +1,9 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use {{ controller_url }};
 
-Route::resource('{{entity}}', '{{entity}}Controller');
-// TO DO
+Route::group( [ 'prefix' => '{{ entity_plural }}', 'middleware' => [ 'auth:api' ] ], function()
+{
+    {{ routes }}
+});

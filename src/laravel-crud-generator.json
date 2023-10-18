@@ -1,0 +1,138 @@
+{
+    "entities": {
+        "Product": {
+            "nameSingular": "product",
+            "namePlural": "products",
+            "rewrite": true,
+            "files": [ "routes", "model", "controller", "migration", "resource", "factory", "service", "test", "mock" ],
+            "attributes": {
+                "name": {
+                    "type": "string",
+                    "nullable": false,
+                    "unique": true,
+                    "default": "Default Test Product"
+                },
+                "description": {
+                    "type": "text",
+                    "nullable": true,
+                    "unique": false
+                },
+                "category_id": {
+                    "type": "bigInteger",
+                    "nullable": false,
+                    "unique": false
+                }
+            },
+            "relations": {
+                "belongsTo": {
+                    "Brand" : {},
+                    "ProductCategory": {
+                        "related": "App\\Models\\Products\\ProductCategory",
+                        "foreingKey": "category_id",
+                        "localKey": "idcategory",
+                        "relation": "product_category_relation_name"
+                    }
+                },
+                "hasOne": {
+                    "Post":{
+                        "related": "App\\Models\\Posts\\Post",
+                        "foreingKey": "product_id",
+                        "localKey": "id"
+                    }
+                },
+                "belongsToMany": {
+                    "ProductTag":{
+                        "related": "App\\Models\\Products\\ProductTag",
+                        "table": "tags_products",
+                        "foreignPivotKey": "productid",
+                        "relatedPivotKey": "tagid",
+                        "parentKey": "idproducto",
+                        "relatedKey": "idtag",
+                        "relation": "product_tag_relation_name"
+                    }
+                },
+                "hasMany": {
+                    "SaleItem":{
+                        "related": "App\\Models\\Sales\\SaleItem",
+                        "foreingKey": "product_id",
+                        "localKey": "id"
+                    }
+                },
+                "hasManyThrough": {
+                    "Sale": {
+                        "related": "App\\Models\\Sales\\Sale",
+                        "through": "App\\Models\\Sales\\SaleItem",
+                        "firstKey": "product_id",
+                        "secondKey": "idsale",
+                        "localKey": "item_id",
+                        "secondLocalKey": "sale_id"
+                    }
+                },
+                "morphTo" : {
+                    "imageable": {
+                        "type": "imageable_type",
+                        "id": "imageable_id",
+                        "owner": "id"
+                    },
+                    "testeable": {
+
+                    }
+                },
+                "morphMany": {
+                    "Image": {
+                        "relationName": "images",
+                        "related": "App\\Models\\Images\\Image",
+                        "name": "imageable"
+                    }
+                },
+                "morphOne": {
+                    "Image": {
+                        "relationName": "image",
+                        "related": "App\\Models\\Images\\Image",
+                        "name": "imageable"
+                    }
+                }
+            },
+            "model": {
+                "namespace": "App\\Models",
+                "filePath": "app/Models",
+                "classname": "Product",
+                "table": "products",
+                "primaryKey": "idproduct",
+                "traits": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
+                "interfaces": [ "Illuminate\\Contracts\\Auth\\MustVerifyEmail" ],
+                "extends": "Illuminate\\Foundation\\Auth\\User as Authenticatable",
+                "rewrite": true
+            },
+            "controller": {
+                "filePath": "app/Http/Controllers/Test",
+                "methods": [ "list", "store", "delete", "test1", "test2" ]
+            },
+            "service": {
+                "use": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
+                "extends": "MainService",
+                "filePath": "app/Services/Test",
+                "methods": [ "list", "store", "update", "delete" ]
+            },
+            "migration": {
+                "table": "products",
+                "id": "idproduct",
+                "filePath": "database/migrations"
+            },
+            "factory": {
+                "filePath": "database/factories/product"
+            },
+            "mock": {
+                "filePath": "database/seeders/mocks/product",
+                "count": "100"
+            },
+            "tests": {
+
+            },
+            "routes": {
+
+            }
+        },
+        "Test": {}
+    }
+}

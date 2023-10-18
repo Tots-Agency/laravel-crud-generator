@@ -1,0 +1,4 @@
+\t{{ method_scope }}{{ method_static }} function {{ method_name }}( {{ method_arguments }} ){{ method_return_type }}
+\t{
+\t\t{{ method_content }}
+\t}

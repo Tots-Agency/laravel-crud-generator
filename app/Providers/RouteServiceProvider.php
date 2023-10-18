@@ -7,6 +7,7 @@ use Illuminate\Foundation\Support\Providers\RouteServiceProvider as ServiceProvi
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\File;
 
 class RouteServiceProvider extends ServiceProvider
 {
@@ -59,5 +60,24 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by(optional($request->user())->id ?: $request->ip());
         });
+    }
+
+    /**
+     * Load routes from the 'routes/entities' folder.
+     *
+     * @return void
+     */
+    protected function loadEntitiesRoutes()
+    {
+        $entitiesRoutesPath = base_path('routes/entities');
+
+        if (File::isDirectory($entitiesRoutesPath)) {
+            $routeFiles = File::allFiles($entitiesRoutesPath);
+            foreach ($routeFiles as $routeFile) {
+                Route::middleware('api')
+                    ->prefix('api')
+                    ->group($routeFile->getPathname());
+            }
+        }
     }
 }

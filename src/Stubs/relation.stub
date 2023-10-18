@@ -1,0 +1,5 @@
+
+\tpublic function {{ relation_name }}() : {{ relation }}
+\t{
+\t\treturn $this->{{ relation_method }}( {{ relation_content }} );
+\t}

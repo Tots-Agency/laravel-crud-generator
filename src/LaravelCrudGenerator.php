@@ -2,83 +2,73 @@
 
 namespace TOTS\LaravelCrudGenerator;
 
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\File;
+use Illuminate\Console\Command;
 
 class LaravelCrudGenerator
 {
-    private $entityName;
-    private $options;
+    private object $crudData;
+    private array $configurationOptions;
+    private Command $command;
 
-    public function __construct( $entityName, $options )
+    public function __construct( $command, $filePath = null )
     {
-        $this->entityName = $entityName;
-        $this->options = $options;
+        $this->command = $command;
+        $this->configurationOptions = require config_path( 'laravelCrudGenerator.php' );
+        $this->crudData = json_decode( file_get_contents( $filePath?  $filePath : $this->configurationOptions[ 'default_file_path' ] ) );
     }
 
     public function generateFiles()
     {
-         if (in_array('model', $this->options)) {
-            Artisan::call('make:model ' . $this->entityName);
-            // TO DO
-        }
-
-        if (in_array('controller', $this->options)) {
-            Artisan::call('make:controller ' . $this->entityName . 'Controller');
-            // TO DO
-        }
-
-        if (in_array('service', $this->options)) {
-            $this->createService($this->entityName);
-        }
-
-        if (in_array('routes', $this->options)) {
-            $this->createRoutes($this->entityName);
-        }
-
-        if (in_array('migration', $this->options)) {
-            Artisan::call('make:migration create_' . strtolower($this->entityName) . 's_table --create=' . strtolower($this->entityName));
-            // TO DO
-        }
-
-        if (in_array('test', $this->options)) {
-            $this->createTests($this->entityName);
-        }
-
-        if (in_array('factory', $this->options)) {
-            Artisan::call('make:factory ' . $this->entityName . 'Factory --model=' . $this->entityName);
-            // TO DO
+        $this->command->newLine();
+        foreach( get_object_vars( $this->crudData->entities ) as $entityName => $entityData )
+        {
+            // $entityData = !empty( (array) $entityData )? $entityData : null;
+            // $files = $entityData && $entityData->files? $entityData->files : $this->configurationOptions[ 'files' ];
+            $entityData = $this->setEntityData( $entityName, $entityData );
+            $this->command->line( "<options=bold;fg=bright-yellow;>⚡</><options=bold;fg=bright-magenta;> CRUD generation for {$entityName}</>" );
+            foreach( $entityData->files as $file )
+            {
+                if( in_array( $file, [ 'routes', 'model', 'controller', 'service', 'migration', 'resource', 'factory', 'mock' ] ) )
+                    $this->generateFile( $file, $entityName, $entityData );
+            }
+            $this->command->line( "<options=bold;fg=bright-white;>└─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=bright-cyan;> {$entityName} has been generated successfully</>" );
+            $this->command->newLine();
         }
     }
 
-    private function createService()
+    public function generateFile( string $fileType, string $entityName, object $entityData = null )
     {
-        $serviceStub = File::get(__DIR__ . '/Stubs/Service.stub');
-        $serviceContent = str_replace('{{entity}}', $this->entityName, $serviceStub);
-
-        $serviceFolderPath = app_path('Services');
-        if (!File::exists($serviceFolderPath)) {
-            File::makeDirectory($serviceFolderPath);
-        }
-
-        $servicePath = $serviceFolderPath . '/' . $this->entityName . 'Service.php';
-        File::put($servicePath, $serviceContent);
+        $fileType = ucfirst( $fileType );
+        $class = 'TOTS\\LaravelCrudGenerator\\Generators\\' . $fileType . 'Generator';
+        $generator = new $class( $entityName, $entityData );
+        $generator->createFile()?
+            $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-green;>✔ </><options=bold;fg=white;> {$fileType}</>" ):
+            $this->command->line( "<options=bold;fg=bright-white;>├─></> <options=bold;fg=bright-red;>❌</><options=bold;fg=red;> {$fileType}</>" );
     }
 
-    private function createRoutes()
+    public function setEntityData( string $entityName, object $entityData )
     {
-        $routesStub = File::get(__DIR__ . '/Stubs/Routes.stub');
-        $routesContent = str_replace('{{entity}}', $this->entityName, $routesStub);
-        $routesPath = base_path('routes/' . strtolower($this->entityName) . '.php');
-        File::put($routesPath, $routesContent);
+        $entityData = !empty( (array) $entityData )? $entityData : null;
+        if( !$entityData ) $entityData = new \stdClass();
+        $entityData->files = $entityData && property_exists( $entityData, 'files' )? $entityData->files : $this->configurationOptions[ 'files' ];
+
+        foreach( [ 'model', 'controller', 'service' ] as $globalEntity )
+            $entityData = $this->setGlobalEntity( $globalEntity, $entityName, $entityData );
+        return $entityData;
     }
 
-    private function createTests()
+    public function setGlobalEntity( string $globalEntity, string $entityName, object $entityData )
     {
-        $testsStub = File::get(__DIR__ . '/Stubs/Tests.stub');
-        $testsContent = str_replace('{{entity}}', $this->entityName, $testsStub);
-        $testsPath = base_path('tests/Feature/' . $this->entityName . 'Test.php');
-        File::put($testsPath, $testsContent);
+        $entityIsSet = property_exists( $entityData, $globalEntity );
+        $classnameAttribute = $globalEntity."Classname";
+        $filePathAttribute = $globalEntity."FilePath";
+        $namespaceAttribute = $globalEntity."Namespace";
+        $urlAttribute = $globalEntity."Url";
+        $defaultClassname = $globalEntity == 'model'? '' : ucfirst( $globalEntity );
+        $entityData->$classnameAttribute = $entityIsSet && property_exists( $entityData->$globalEntity, 'classname' )? $entityData->$globalEntity->classname : $entityName . $defaultClassname;
+        $entityData->$filePathAttribute = $entityIsSet && property_exists( $entityData->$globalEntity, 'filePath' )? $entityData->$globalEntity->filePath : $this->configurationOptions[ $globalEntity ][ 'file_path' ];
+        $entityData->$namespaceAttribute = $entityIsSet && property_exists( $entityData->$globalEntity, 'namespace' )? $entityData->$globalEntity->namespace : $this->configurationOptions[ $globalEntity ][ 'namespace' ];
+        $entityData->$urlAttribute = $entityData->$namespaceAttribute . '\\' . $entityData->$classnameAttribute;
+        return $entityData;
     }
-
 }

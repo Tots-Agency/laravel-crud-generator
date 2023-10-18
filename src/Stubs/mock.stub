@@ -1,0 +1,9 @@
+    /**
+    * Run the database mock seeders.
+    */
+    public function run(): void
+    {
+        {{ model }}::factory()
+                ->count({{ count }})
+                ->create();
+    }
