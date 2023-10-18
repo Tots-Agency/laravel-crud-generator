@@ -18,7 +18,5 @@
         "psr-4": {
             "TOTS\\LaravelCrudGenerator\\": "src/"
         }
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": false
+    }
 }
