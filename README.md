@@ -11,5 +11,4 @@ TOTS Laravel CRUD Generator is a library to automate the creation of entities fo
 1. Installation: php artisan crud:install
 2. Update json file called laravel-crud-generator
 3. Generate files: php artisan crud:generate
-4. If you need help creating a package, consider picking up our <a href="https://laravelpackage.training">Laravel Package Training</a> video course.
 ---
