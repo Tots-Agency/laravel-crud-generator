@@ -6,7 +6,7 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/Tots-Agency/laravel-crud-generator?style=flat-square)](https://packagist.org/packages/Tots-Agency/laravel-crud-generator)
 
 ---
-TOTS Laravel CRUD Generator is a library to automate the creation of entities for Laravel APIs
+TOTS Laravel CRUD Generator is a library to automate the creation of files for Laravel APIs
 
 1. Installation: php artisan crud:install
 2. Update json file called laravel-crud-generator
