@@ -19,5 +19,12 @@
             "TOTS\\LaravelCrudGenerator\\": "src/"
         }
     },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TOTS\\LaravelCrudGenerator\\LaravelCrudGeneratorServiceProvider"
+            ]
+        }
+    },
     "minimum-stability": "dev"
 }
