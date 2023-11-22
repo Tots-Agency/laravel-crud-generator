@@ -6,7 +6,7 @@
 ---
 TOTS Laravel CRUD Generator is a library to automate the creation of files for Laravel APIs
 
-1. Run "composer require tots/laravel-crud-generator" command to install the package
+1. Run "composer require --dev tots/laravel-crud-generator" command to install the package
 2. Add "TOTS\LaravelCrudGenerator\LaravelCrudGeneratorServiceProvider::class," as a package service provider in your config/app.php file
 3. Run "php artisan crud:install" to generate package config files
 4. Update json file called "laravel-crud-generator.json" with all the things that you need
