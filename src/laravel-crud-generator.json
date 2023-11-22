@@ -6,7 +6,7 @@
             "rewrite": true,
             "files": [ "routes", "model", "controller", "migration", "resource", "factory", "service", "test", "mock" ],
             "attributes": {
-                "name": {
+                "title": {
                     "type": "string",
                     "nullable": false,
                     "unique": true,
@@ -105,13 +105,13 @@
                 "rewrite": true
             },
             "controller": {
-                "filePath": "app/Http/Controllers/Test",
+                "filePath": "app/Http/Controllers/Product",
                 "methods": [ "list", "store", "delete", "test1", "test2" ]
             },
             "service": {
                 "use": [ "Laravel\\Sanctum\\HasApiTokens", "Illuminate\\Notifications\\Notifiable" ],
                 "extends": "MainService",
-                "filePath": "app/Services/Test",
+                "filePath": "app/Services/Product",
                 "methods": [ "list", "store", "update", "delete" ]
             },
             "migration": {
@@ -133,6 +133,24 @@
 
             }
         },
-        "Test": {}
+        "Invoice": {
+            "attributes": {
+                "user_id": {
+                    "type": "bigInteger",
+                    "nullable": false,
+                    "unique": true
+                },
+                "amount": {
+                    "type": "decimal",
+                    "nullable": false,
+                    "unique": false
+                },
+                "issue_date": {
+                    "type": "dateTime",
+                    "nullable": false,
+                    "unique": false
+                }
+            }
+        }
     }
 }

@@ -152,7 +152,7 @@ class TestGenerator extends FileGenerator
         $routeMethod = $this->getMethodRouteMethod( 'list' );
 
         $methodContent .= "\$response = \$this->json('$routeMethod', \"$routeUrl\");
-        \$response->assertStatus(204)->assertJsonStructure([
+        \$response->assertStatus(200)->assertJsonStructure([
             'data' => [
                 '*' => '*',
             ],
@@ -180,7 +180,7 @@ class TestGenerator extends FileGenerator
         if( in_array( $attributeName, [ 'user', 'username', 'user_name', 'user_name' ] )  ) return $this->faker()->userName;
         if( in_array( $attributeName, [ 'pass', 'password', 'pswd' ] )  ) return $this->faker()->password();
         if( in_array( $attributeName, [ 'description', 'comment', 'caption', 'body' ] )  ) return $this->faker()->sentence();
-        if( in_array( $attributeName, [ 'title' ] ) ) return $this->faker()->title();
+        if( in_array( $attributeName, [ 'title' ] ) ) return $this->faker()->words(5,true);
 
         switch( $attributeType )
         {
@@ -188,9 +188,9 @@ class TestGenerator extends FileGenerator
             case 'text': return $this->faker()->sentence;
             case 'integer': return $this->faker()->numberBetween( 1, 9999 );
             case 'bigInteger': return $this->faker()->numberBetween( 1, 99999999 );
-            case 'double': return $this->faker()->randomFloat( 2 );
+            case 'decimal': case 'double': return $this->faker()->randomFloat( 2 );
             case 'boolean': return $this->faker()->boolean;
-            case 'date': return $this->faker()->date();
+            case 'date': case 'dateTime': return $this->faker()->date();
         }
     }
     public function getMethodRouteUrl( $entityVar = null, $method = null )
