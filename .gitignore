@@ -1,9 +1,10 @@
 /node_modules
-# /public
-# /storage
-# /vendor
-# .env
-# .env.backup
+/public
+/storage
+/vendor
+.env
+.env.backup
+.env.example
 .phpunit.result.cache
 docker-compose.override.yml
 Homestead.json
@@ -12,10 +13,19 @@ npm-debug.log
 yarn-error.log
 /.idea
 /.vscode
-# /app
-# /config
-# /routes
-# /resources
-# /database
-# /test
+/app
+/config
+/routes
+/resources
+/database
+/tests
+/bootstrap
 laravel-crud-generator.json
+webpack.mix.js
+server.php
+package.json
+phpunit.xml
+composer.lock
+artisan
+.styleci.yml
+.editorconfig

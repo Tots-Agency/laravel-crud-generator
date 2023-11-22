@@ -2,7 +2,7 @@
 
 return [
     "default_file_path" => env( "LARAVEL_CRUD_GENERATOR_FILE_PATH" ) ?? 'laravel-crud-generator.json',
-    "rewrite" => env( "LARAVEL_CRUD_GENERATOR_RERWRITE" ) ?? true,
+    "rewrite" => env( "LARAVEL_CRUD_GENERATOR_RERWRITE" ) ?? false,
     "files" => [ "routes", "model", "controller", "migration", "resource", "factory", "service", "test", "mock" ],
     "relations" => [],
     "routes" => [
@@ -12,7 +12,7 @@ return [
         "extends" => null,
         "file_path" => "routes/entities",
         "namespace" => null,
-        "rewrite" => true
+        "rewrite" => false
     ],
     "model" => [
         "use" => [],
@@ -21,7 +21,7 @@ return [
         "extends" => 'Illuminate\\Database\\Eloquent\\Model',
         "file_path" => "app/Models",
         "namespace" => "App\\Models",
-        "rewrite" => true
+        "rewrite" => false
     ],
     "controller" => [
         "use" => [],
@@ -32,7 +32,7 @@ return [
         "namespace" => "App\\Http\\Controllers",
         "methods" => [ "list", "show", "store", "update", "delete" ],
         "response" => "\\Illuminate\\Http\\JsonResponse",
-        "rewrite" => true
+        "rewrite" => false
     ],
     "request" => [
         "use" => [],
@@ -42,7 +42,7 @@ return [
         "file_path" => "app/Http/Requests",
         "namespace" => "App\\Http\\Requests",
         "methods" => [ "list", "show", "store", "update", "delete" ],
-        "rewrite" => true
+        "rewrite" => false
     ],
     "resource" => [
         "use" => [],
@@ -51,7 +51,7 @@ return [
         "extends" => 'Illuminate\\Http\\Resources\\Json\\JsonResource',
         "file_path" => "app/Http/Resources",
         "namespace" => "App\\Http\\Resources",
-        "rewrite" => true
+        "rewrite" => false
     ],
     "service" => [
         "use" => [],
@@ -61,7 +61,7 @@ return [
         "file_path" => "app/Services",
         "namespace" => "App\\Services",
         "methods" => [ "list", "fetch", "store", "update", "delete" ],
-        "rewrite" => true
+        "rewrite" => false
     ],
     "migration" => [
         "use" => [ 'Illuminate\\Database\\Schema\\Blueprint', 'Illuminate\\Support\\Facades\\Schema' ],
@@ -73,16 +73,16 @@ return [
         "timestamps" => true,
         "softDeletes" => true,
         "id" => true,
-        "rewrite" => true
+        "rewrite" => false
     ],
     "factory" => [
-        "use" => [ 'Illuminate\Support\Str' ],
+        "use" => [ 'Illuminate\\Support\\Str' ],
         "traits" => [],
         "interfaces" => [],
         "extends" => 'Illuminate\\Database\\Eloquent\\Factories\\Factory',
         "file_path" => "database/factories",
         "namespace" => "Database\\Factories",
-        "rewrite" => true
+        "rewrite" => false
     ],
     "mock" => [
         "use" => [],
@@ -92,6 +92,15 @@ return [
         "file_path" => "database/seeders/mocks",
         "namespace" => "Database\\Seeders\\Mocks",
         "count" => 50,
-        "rewrite" => true
+        "rewrite" => false
     ],
+    "test" => [
+        "use" => [ 'Illuminate\\Foundation\\Testing\\WithFaker' ],
+        "traits" => [ 'Illuminate\\Foundation\\Testing\\RefreshDatabase' ],
+        "interfaces" => [],
+        "extends" => 'Tests\\TestCase',
+        "file_path" => "tests/Feature",
+        "namespace" => "Tests\\Feature",
+        "rewrite" => false
+    ]
 ];

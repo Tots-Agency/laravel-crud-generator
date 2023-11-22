@@ -149,7 +149,7 @@ abstract class FileGenerator implements FileGeneratorInterface
             {
                 $traits[ $key ] = self::getClassNameFromUrl( $traitsUrl );
             }
-            $this->fileTraits = "\tuse " . implode( ', ', $traits ) . ";\n\n\t";
+            $this->fileTraits = "\tuse " . implode( ', ', $traits ) . ";\n\n";
         }
     }
 
@@ -308,6 +308,7 @@ abstract class FileGenerator implements FileGeneratorInterface
         }
         $template = str_replace( "\\t", "\t", $template );
         $template = str_replace( "\\n", "\n", $template );
+        $template = str_replace( "(  )", "()", $template );
         return $template;
     }
 

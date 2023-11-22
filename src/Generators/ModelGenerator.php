@@ -224,6 +224,7 @@ class ModelGenerator extends FileGenerator
     public function generateFileContent() : void
     {
         parent::generateFileContent();
+        $this->fileContent = str_replace( "\\t", "\t", $this->fileContent );
         $this->fileContent = str_replace( '{{ table }}', $this->table, $this->fileContent );
         $this->fileContent = str_replace( '{{ primary_key }}', $this->primaryKey, $this->fileContent );
         $this->fileContent = str_replace( '{{ fillable }}', $this->fillable, $this->fileContent );

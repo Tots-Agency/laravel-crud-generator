@@ -76,11 +76,9 @@ class ControllerGenerator extends FileGenerator
                 $methodContent = $this->$methodToGenerateContent();
                 $methodToGenerateArguments = 'generate' . $method . 'MethodArguments';
                 $methodArguments = method_exists( $this, $methodToGenerateArguments )? $this->$methodToGenerateArguments() : null;
-                // $methodResponse = $this->generateMethodResponse( $method );
             }else{
                 $methodContent = $this->generateDefaultMethodContent();
                 $methodArguments = $this->generateDefaultMethodArguments( $method ); //"Request \$request";
-                // $methodResponse = $this->generateMethodResponse();
                 if( !in_array( "Illuminate\\Http\\Request", $this->fileUseUrls ) ) $this->fileUseUrls[] = "Illuminate\\Http\\Request";
             }
             $methodBaseTemplate = parent::generateMethodTemplate( $method, $methodArguments, $this->defaultMethodResponse );
@@ -92,18 +90,6 @@ class ControllerGenerator extends FileGenerator
     {
         return "private {$this->entityService} \${$this->entityServiceVar}";
     }
-
-    // public function generateMethodResponse( $method = null ) : string
-    // {
-    //     $methodToGenerateResponse = 'generate' . $method . 'MethodResponse';
-    //     return $method && method_exists( $this, $methodToGenerateResponse )? $this->$methodToGenerateResponse() : $this->defaultMethodResponse;
-    // }
-
-    // public function generateListMethodResponse()
-    // {
-    //     $resourceCollectionNamespace = $this->getResourceCollectionNamespace();
-    //     return Str::afterLast( $resourceCollectionNamespace, '\\' );
-    // }
 
     public function getMethodRequestFile( string $method ) : string
     {
@@ -211,7 +197,7 @@ class ControllerGenerator extends FileGenerator
 
         response()->json( [
             'data' => {$this->entityResource}::make( {$this->entityVar} ),
-        ] ):
+        ], 204 ):
 
         response()->json( [
             'error' => '{$this->entityName} not found',
