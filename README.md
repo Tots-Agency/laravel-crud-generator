@@ -28,7 +28,7 @@ Here you have a table with all the attributes you can modify:
 | :---: | :----- | :--: | :----- |
 | **default_file_path** | Indicates the path to json file | string | ```'laravel-crud-generator.json'``` |
 | **rewrite** | Indicates if files are allowed to be rewritten if the generator runs | boolean | ```false``` |
-| **files** | Indicates what type of files the generator is allowed to generate. All [types of file](#type%20of%20files) are listed in the example. | array | ```["routes", "model", "controller", "migration", "resource", "factory", "service", "test", "mock" ]``` |
+| **files** | Indicates what type of files the generator is allowed to generate. All [types of file](#type-of-files) are listed in the example. | array | ```["routes", "model", "controller", "migration", "resource", "factory", "service", "test", "mock" ]``` |
 | **relations** | Indicates the default relationships of the files generated. This is in case you need to stablish a relationship by default for all files. | array of relations | ```[ [ "BelognsTo" => [ "General" => [ "related" => "App\\Models\\General" ] ] ] ]``` |
 | **routes** | Indicates the default configuration for routes files | array | ```[ "use" => [], "traits" => [], "interfaces" => [], "extends" => null, "file_path" => "routes/entities", "namespace" => null, "rewrite" => false ]``` |
 | **model** | Indicates the default configuration for model files | array | ```[ "use" => [], "traits" => [ 'Illuminate\\Database\\Eloquent\\Factories\\HasFactory' ], "interfaces" => [], "extends" => 'Illuminate\\Database\\Eloquent\\Model', "file_path" => "app/Models", "namespace" => "App\\Models", "rewrite" => false ]``` |
