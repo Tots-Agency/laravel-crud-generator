@@ -16,6 +16,8 @@ class ControllerGenerator extends FileGenerator
     protected string $entityResource;
     protected string $entityCollection;
     protected string $entityVar;
+    protected string $serviceCall;
+    protected bool $staticServiceMethods;
 
     public function setFileContent() : void
     {
@@ -54,6 +56,9 @@ class ControllerGenerator extends FileGenerator
         $this->entityService = $this->entityData->serviceClassname;
         $this->entityServiceVar = Str::camel( $this->entityService );
         $this->fileUseUrls[] = $this->entityData->serviceUrl;
+
+        $this->staticServiceMethods = property_exists( $this->entityData, 'service' ) && property_exists( $this->entityData->service, 'static_methods' )? $this->entityData->service->static_methods : $this->configurationOptions[ 'service' ][ 'static_methods' ];
+        $this->serviceCall = $this->staticServiceMethods? "{$this->entityService}::" : "\$this->{$this->entityServiceVar}->";
     }
 
     public function setEntityResource() : void
@@ -64,9 +69,12 @@ class ControllerGenerator extends FileGenerator
 
     public function setMethods() : void
     {
-        $constructMethodArguments = $this->generateConstructMethodArguments();
-        $methodBaseTemplate = parent::generateMethodTemplate( '__construct', $constructMethodArguments, null );
-        $this->methodsContent[ '__construct' ] = str_replace( '{{ method_content }}', '', $methodBaseTemplate );
+        if( !$this->staticServiceMethods )
+        {
+            $constructMethodArguments = $this->generateConstructMethodArguments();
+            $methodBaseTemplate = parent::generateMethodTemplate( '__construct', $constructMethodArguments, null );
+            $this->methodsContent[ '__construct' ] = str_replace( '{{ method_content }}', '', $methodBaseTemplate );
+        }
 
         foreach( $this->controllerMethods as $method )
         {
@@ -162,7 +170,7 @@ class ControllerGenerator extends FileGenerator
 
     public function generateStoreMethodContent() : string
     {
-        return "{$this->entityVar} = \$this->{$this->entityServiceVar}->store( \$request->validated() );
+        return "{$this->entityVar} = {$this->serviceCall}store( \$request->validated() );
         return response()->json( [
             'data' => {$this->entityResource}::make( {$this->entityVar} ),
         ], 201 );";
@@ -177,7 +185,7 @@ class ControllerGenerator extends FileGenerator
 
     public function generateUpdateMethodContent() : string
     {
-        return "{$this->entityVar} = \$this->{$this->entityServiceVar}->update( \$request->validated(), {$this->entityVar}Id );
+        return "{$this->entityVar} = {$this->serviceCall}update( \$request->validated(), {$this->entityVar}Id );
         return response()->json( [
             'data' => {$this->entityResource}::make( {$this->entityVar} ),
         ] );";
@@ -192,7 +200,7 @@ class ControllerGenerator extends FileGenerator
 
     public function generateDeleteMethodContent() : string
     {
-        return "{$this->entityVar} = \$this->{$this->entityServiceVar}->delete( {$this->entityVar}Id );
+        return "{$this->entityVar} = {$this->serviceCall}delete( {$this->entityVar}Id );
         return {$this->entityVar} ?
 
         response()->json( [
@@ -211,7 +219,7 @@ class ControllerGenerator extends FileGenerator
 
     public function generateShowMethodContent() : string
     {
-        return "{$this->entityVar} = \$this->{$this->entityServiceVar}->fetch( {$this->entityVar}Id );
+        return "{$this->entityVar} = {$this->serviceCall}fetch( {$this->entityVar}Id );
         return {$this->entityVar} ?
 
         response()->json( [
@@ -232,7 +240,7 @@ class ControllerGenerator extends FileGenerator
     {
 
         $listVar = Str::plural( $this->entityVar );
-        return "{$listVar} = \$this->{$this->entityServiceVar}->list( \$request->validated() );
+        return "{$listVar} = {$this->serviceCall}list( \$request->validated() );
         return response()->json( [
             'data' => new {$this->entityCollection}( {$listVar} ),
         ] );";

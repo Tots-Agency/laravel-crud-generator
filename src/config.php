@@ -60,6 +60,7 @@ return [
         "extends" => null,
         "file_path" => "app/Services",
         "namespace" => "App\\Services",
+        "static_methods" => false,
         "methods" => [ "list", "fetch", "store", "update", "delete" ],
         "rewrite" => false
     ],

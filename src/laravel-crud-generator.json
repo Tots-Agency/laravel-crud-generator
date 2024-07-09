@@ -150,6 +150,9 @@
                     "nullable": false,
                     "unique": false
                 }
+            },
+            "service": {
+                "static_methods": true
             }
         }
     }

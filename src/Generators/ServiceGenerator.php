@@ -10,6 +10,7 @@ class ServiceGenerator extends FileGenerator
     protected array $methodsContent;
     protected string $entityModel;
     protected string $entityVar;
+    protected bool $staticMethods;
 
     public function setFileContent() : void
     {
@@ -21,6 +22,7 @@ class ServiceGenerator extends FileGenerator
 
     public function setServiceMethods() : void
     {
+        $this->staticMethods = $this->fileData && property_exists( $this->fileData, 'static_methods' )? $this->fileData->static_methods : $this->configurationOptions[ $this->fileType ][ 'static_methods' ];
         $this->serviceMethods = $this->fileData && property_exists( $this->fileData, 'methods' )? $this->fileData->methods : $this->configurationOptions[ $this->fileType ][ 'methods' ];
         if( !in_array( 'fetch', $this->serviceMethods ) && ( in_array( 'update', $this->serviceMethods ) || in_array( 'delete', $this->serviceMethods ) ) ) $this->serviceMethods[] = 'fetch';
     }
@@ -60,7 +62,7 @@ class ServiceGenerator extends FileGenerator
                 $methodContent = $this->generateDefaultMethodContent();
                 $methodArguments = "Request \$request";
             }
-            $methodBaseTemplate = parent::generateMethodTemplate( $method, $methodArguments, $methodResponse, false );
+            $methodBaseTemplate = parent::generateMethodTemplate( $method, $methodArguments, $methodResponse, $this->staticMethods );
             $this->methodsContent[ $method ] = str_replace( '{{ method_content }}', $methodContent, $methodBaseTemplate );
         }
     }
@@ -82,7 +84,8 @@ class ServiceGenerator extends FileGenerator
 
     public function generateUpdateMethodContent() : string
     {
-        return "{$this->entityVar} = \$this->fetch( {$this->entityVar}Id );
+        $self = $this->staticMethods? 'self::' : '$this->';
+        return "{$this->entityVar} = {$self}fetch( {$this->entityVar}Id );
         {$this->entityVar}->update( {$this->entityVar}Data );
         return {$this->entityVar};";
     }
@@ -94,7 +97,8 @@ class ServiceGenerator extends FileGenerator
 
     public function generateDeleteMethodContent() : string
     {
-        return "{$this->entityVar} = \$this->fetch( {$this->entityVar}Id );
+        $self = $this->staticMethods? 'self::' : '$this->';
+        return "{$this->entityVar} = {$self}fetch( {$this->entityVar}Id );
         {$this->entityVar}->delete();
         return {$this->entityVar};";
     }
