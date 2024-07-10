@@ -22,7 +22,10 @@ composer require --dev tots/laravel-crud-generator
 php artisan crud:install
 ```
 6. Update json file called "laravel-crud-generator.json" with all the things that you need
-7. Run "php artisan crud:generate" to generate all the files for the definitions given at laravel-crud-generator.json file
+7. To generate all the files for the definitions given at laravel-crud-generator.json file run
+```bash
+php artisan crud:generate
+```
 ---
 
 ## General configuration
